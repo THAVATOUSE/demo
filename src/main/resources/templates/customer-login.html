@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <title>登录注册与物流信息</title>
+    <!-- 引入 Element UI 的样式和 Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue @2"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js "></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css ">
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            cursor: pointer;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #eee;
+            border-radius: 5px;
+        }
+
+        .tab.active {
+            background-color: #409EFF;
+            color: white;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #409EFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .logistics-buttons {
+            margin-top: 40px;
+            text-align: right;
+        }
+
+        .logistics-buttons button {
+            margin-left: 10px;
+        }
+
+        .map-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="container">
+    <h1>欢迎来到我们的平台</h1>
+
+    <!-- 登录/注册标签 -->
+    <div class="tabs">
+        <span class="tab" :class="{ active: activeTab === 'login' }" @click="activeTab = 'login'">登录</span>
+        <span class="tab" :class="{ active: activeTab === 'register' }" @click="activeTab = 'register'">注册</span>
+    </div>
+
+    <!-- 登录表单 -->
+    <form v-if="activeTab === 'login'" action="/customer/home" method="GET">
+        <input type="text" placeholder="用户名" required>
+        <input type="password" placeholder="密码" required>
+        <button type="submit">登录</button>
+    </form>
+
+    <!-- 注册表单 -->
+    <form v-if="activeTab === 'register'" @submit.prevent>
+        <input type="text" placeholder="用户名" required>
+        <input type="email" placeholder="邮箱" required>
+        <input type="password" placeholder="密码" required>
+        <button type="submit">注册</button>
+    </form>
+
+    <!-- 物流按钮 -->
+    <div class="logistics-buttons">
+        <el-button @click="showLogistics('not_shipped')">未发货</el-button>
+        <el-button @click="showLogistics('in_transit')">待收货</el-button>
+        <el-button @click="showLogistics('delivered')">已收货</el-button>
+    </div>
+
+    <!-- 浮窗 Dialog -->
+    <el-dialog title="物流信息" :visible.sync="dialogVisible" width="30%">
+        <p>{{ logisticsContent }}</p>
+        <img :src="logisticsImage" alt="物流地图" class="map-image" v-if="logisticsImage">
+    </el-dialog>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                activeTab: 'login', // 当前激活的标签页
+                dialogVisible: false, // 控制浮窗是否可见
+                logisticsContent: '', // 物流文字内容
+                logisticsImage: ''    // 物流图片路径
+            };
+        },
+        methods: {
+            showLogistics(status) {
+                const logisticsData = {
+                    not_shipped: {
+                        content: '您的订单尚未发货，请耐心等待。',
+                        image: '/static/images/not_shipped_map.png'
+                    },
+                    in_transit: {
+                        content: '您的包裹正在运输途中，请注意查收。',
+                        image: '/static/images/in_transit_map.png'
+                    },
+                    delivered: {
+                        content: '您的包裹已成功签收。感谢您的购买！',
+                        image: '/static/images/delivered_map.png'
+                    }
+                };
+
+                const selected = logisticsData[status];
+                if (selected) {
+                    this.logisticsContent = selected.content;
+                    this.logisticsImage = selected.image;
+                    this.dialogVisible = true;
+                } else {
+                    this.logisticsContent = '无效的状态';
+                    this.logisticsImage = '';
+                    this.dialogVisible = true;
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

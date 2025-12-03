@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>农产品消费者平台 - 基本信息页面</title>
+    <!-- 引入 Element UI 样式 -->
+    <link rel="stylesheet" href="/static/element-ui/theme-chalk/index.css">
+    <style>
+        html, body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .el-header {
+            background-color: #A8C48C;
+            color: white;
+            line-height: 60px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .el-aside {
+            background-color: #f5f7fa;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            padding-top: 20px;
+        }
+
+        .content-box {
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        .el-footer {
+            background-color: #A8C48C;
+            color: white;
+            text-align: center;
+            line-height: 60px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container style="height: 100vh;">
+
+        <!-- 头部 -->
+        <el-header class="el-header">
+            <div style="width: 100px;">
+                <img src="https://via.placeholder.com/80x40?text=LOGO" alt="平台Logo" style="height: 40px;">
+            </div>
+            <div style="flex-grow: 1; text-align: center; font-size: 20px; font-weight: bold;">
+                农产品消费平台
+            </div>
+            <div>👤 用户名</div>
+        </el-header>
+
+        <!-- 主体容器 -->
+        <el-container>
+
+            <!-- 左侧菜单 -->
+            <el-aside width="220px" class="el-aside">
+                <el-menu
+                        default-active="1"
+                        class="el-menu-vertical-demo"
+                        @select="handleMenuSelect"
+                >
+                    <el-submenu index="1">
+                        <template slot="title">👤 个人资料</template>
+                        <el-menu-item index="basic-info">基本信息</el-menu-item>
+                        <el-menu-item index="change-password">安全设置</el-menu-item>
+
+                    </el-submenu>
+
+                    <el-menu-item index="favorite">🛍️ 商品收藏</el-menu-item>
+                    <el-menu-item index="store-favorite">🛍️ 关注店铺</el-menu-item>
+                    <el-menu-item index="shopping-cart">🛒 购物清单</el-menu-item>
+                    <el-submenu index="2">
+                        <template slot="title">🚚 物流信息</template>
+                        <el-menu-item index="not-shipped">📦 未发货</el-menu-item>
+                        <el-menu-item index="to-receive">🚚 待收货</el-menu-item>
+                        <el-menu-item index="received">✅ 已收货</el-menu-item>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
+
+            <!-- 右侧内容区域 -->
+            <el-main class="content-box">
+                <!-- 动态组件渲染区域 -->
+                <component :is="currentComponent"></component>
+            </el-main>
+
+        </el-container>
+
+        <!-- 底部 -->
+        <el-footer class="el-footer">
+            © 2025 农产品消费平台 版权所有
+        </el-footer>
+
+    </el-container>
+</div>
+
+<!-- 引入 Vue 和 Element UI -->
+<script src="/static/js/vue.min.js"></script>
+<script src="/static/element-ui/index.js"></script>
+
+<!-- Vue 初始化 -->
+<script>
+    // ======================== 各个功能页面组件 ========================
+    // 你可以将这些组件单独抽离成文件，也可以在这里维护
+
+    // 基本信息组件
+    const BasicInfo = {
+        template: `
+          <div>
+            <h2>基本信息</h2>
+            <p>这是你的个人信息页面。</p>
+            <el-form label-position="right" label-width="100px">
+              <el-form-item label="用户名">
+                <el-input value="张三" disabled></el-input>
+              </el-form-item>
+              <el-form-item label="手机号">
+                <el-input value="13800001111" disabled></el-input>
+              </el-form-item>
+              <el-form-item label="地址">
+                <el-input value="浙江省杭州市西湖区文三路123号" disabled></el-input>
+              </el-form-item>
+            </el-form>
+          </div>
+        `
+    };
+
+    // 修改密码组件
+    const ChangePassword = {
+        template: `
+          <div>
+            <h2>修改密码</h2>
+            <p>请填写旧密码并输入新密码：</p>
+            <el-form label-width="100px">
+              <el-form-item label="旧密码">
+                <el-input type="password" show-password v-model="oldPassword"></el-input>
+              </el-form-item>
+              <el-form-item label="新密码">
+                <el-input type="password" show-password v-model="newPassword"></el-input>
+              </el-form-item>
+              <el-button type="primary" @click="submit">提交</el-button>
+            </el-form>
+          </div>
+        `,
+        data() {
+            return {
+                oldPassword: '',
+                newPassword: ''
+            };
+        },
+        methods: {
+            submit() {
+                alert('提交修改密码');
+            }
+        }
+    };
+
+
+
+    // 商品收藏组件（示例）
+    const Favorite = {
+        template: `<div><h2>商品收藏</h2><p>QQQQQQQQQQQQQQQQQQQQQQQQQ</p>
+  <el-table
+    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+    style="width: 100%">
+    <el-table-column
+      label="Date"
+      prop="date">
+    </el-table-column>
+    <el-table-column
+      label="Name"
+      prop="name">
+    </el-table-column>
+    <el-table-column
+      align="right">
+      <template slot="header" slot-scope="scope">
+        <el-input
+          v-model="search"
+          size="mini"
+          placeholder="输入关键字搜索"/>
+      </template>
+      <template slot-scope="scope">
+        <el-button
+          size="mini"
+          @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  </div>`,
+            data() {
+                return {
+                    tableData: [{
+                        date: '2016-05-02',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1518 弄'
+                    }, {
+                        date: '2016-05-04',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1517 弄'
+                    }, {
+                        date: '2016-05-01',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1519 弄'
+                    }, {
+                        date: '2016-05-03',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1516 弄'
+                    }],
+                    search: ''
+                }
+            },
+            methods: {
+                handleEdit(index, row) {
+                    console.log(index, row);
+                },
+                handleDelete(index, row) {
+                    console.log(index, row);
+                }
+            },
+    };
+
+    const store_favorite = {
+        template: `<div><h2>店铺关注</h2><p>QQQQQQQQQQQQQQQQQQQQQQQQQ</p>
+  <el-table
+    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+    style="width: 100%">
+    <el-table-column
+      label="Date"
+      prop="date">
+    </el-table-column>
+    <el-table-column
+      label="Name"
+      prop="name">
+    </el-table-column>
+    <el-table-column
+      align="right">
+      <template slot="header" slot-scope="scope">
+        <el-input
+          v-model="search"
+          size="mini"
+          placeholder="输入关键字搜索"/>
+      </template>
+      <template slot-scope="scope">
+        <el-button
+          size="mini"
+          @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  </div>`,
+        data() {
+            return {
+                tableData: [{
+                    date: '2016-05-02',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-04',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1517 弄'
+                }, {
+                    date: '2016-05-01',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1519 弄'
+                }, {
+                    date: '2016-05-03',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1516 弄'
+                }],
+                search: ''
+            }
+        },
+        methods: {
+            handleEdit(index, row) {
+                console.log(index, row);
+            },
+            handleDelete(index, row) {
+                console.log(index, row);
+            }
+        },
+    };
+
+    // 购物清单组件（示例）
+    const ShoppingCart = {
+        template: `<div><h2>购物清单</h2><p>QQQQQQQQQQQQQQQQQQQQQQQQQ</p></div>`
+    };
+
+    // 待收货组件（地图占位符）
+    const ToReceive = {
+        template: `<div><h2>待收货订单</h2><p>AAAAAAAAAAAAAAAAAAAAAAA</p></div>`
+    };
+
+    // ==============================================================
+
+    // Vue 实例
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                currentComponent: 'basic-info' // 默认显示的基本信息页面
+            };
+        },
+        components: {
+            'basic-info': BasicInfo,
+            'change-password': ChangePassword,
+            'favorite': Favorite,
+            'store-favorite':store_favorite,
+            'shopping-cart': ShoppingCart,
+            'to-receive': ToReceive
+        },
+        methods: {
+            handleMenuSelect(index) {
+                // 设置当前组件名称
+                this.currentComponent = index;
+            }
+        }
+    });
+</script>
+</body>
+</html>

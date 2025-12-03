@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智农通农产品平台</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/element-ui/theme-chalk/index.css">
+    <link rel="stylesheet" href="/static/css/style.css" />
+
+
+</head>
+<body>
+<div id="app">
+    <!-- 平台名称 -->
+    <div class="platform-name">
+        <img src="/static/img/logo.jpg" alt="平台标志" class="header-image">
+        <b>智农通农产品交易平台</b>
+    </div>
+
+    <!-- 按钮容器 -->
+    <div class="button-container">
+
+        <!--用户登录-->
+        <div class="button consumer-button" onclick="window.location.href='/customer/home'">
+            <i class="fas fa-shopping-basket button-icon"></i>
+            <p class="button-text">用户登录</p>
+        </div>
+
+<!--        &lt;!&ndash; 农户登录按钮 &ndash;&gt;-->
+<!--        <div class="button farmer-button" onclick="window.location.href='/farmer/login'">-->
+<!--            <i class="fas fa-farm button-icon"></i>-->
+<!--            <p class="button-text">农户登录</p>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; 消费者登录按钮 &ndash;&gt;-->
+<!--        <div class="button consumer-button" onclick="window.location.href='/customer/login'">-->
+<!--            <i class="fas fa-shopping-basket button-icon"></i>-->
+<!--            <p class="button-text">消费者登录</p>-->
+<!--        </div>-->
+
+        <!-- 无人机调度管理登录按钮 -->
+        <div class="button drone-button" onclick="window.location.href='/management/login'">
+            <i class="fas fa-drone button-icon"></i>
+            <p class="button-text">无人机调度管理登录</p>
+        </div>
+    </div>
+</div>
+
+<!-- 引入依赖 -->
+<script src="/static/js/vue.min.js"></script>
+<script src="/static/element-ui/index.js"></script>
+<script src="https://js.arcgis.com/4.32/ "></script>
+<script src="/static/js/index.js"></script>
+
+
+<!-- Vue 初始化 -->
+<!--<script>-->
+<!--    new Vue({-->
+<!--        el: '#app',-->
+<!--        data() {-->
+<!--            return {-->
+<!--                activeName: 'second'-->
+<!--            };-->
+<!--        },-->
+<!--        mounted() {-->
+<!--            this.initMap();-->
+<!--        },-->
+<!--        methods: {-->
+<!--            initMap() {-->
+<!--                require([-->
+<!--                    "esri/Map",-->
+<!--                    "esri/views/MapView",-->
+<!--                    "esri/layers/TileLayer"-->
+<!--                ], (Map, MapView, TileLayer) => {-->
+<!--                    const transportationLayer = new TileLayer({-->
+<!--                        url: "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer ",-->
+<!--                        id: "streets",-->
+<!--                        visible: false-->
+<!--                    });-->
+
+<!--                    const housingLayer = new TileLayer({-->
+<!--                        url: "https://tiles.arcgis.com/tiles/nGt4QxSblgDfeJn9/arcgis/rest/services/New_York_Housing_Density/MapServer ",-->
+<!--                        id: "ny-housing",-->
+<!--                        opacity: 0.9-->
+<!--                    });-->
+
+<!--                    const map = new Map({-->
+<!--                        basemap: "oceans",-->
+<!--                        layers: [housingLayer]-->
+<!--                    });-->
+
+<!--                    map.add(transportationLayer);-->
+
+<!--                    const view = new MapView({-->
+<!--                        container: "viewDiv",-->
+<!--                        map: map,-->
+<!--                        center: [-118.24532, 34.05398],-->
+<!--                        zoom: 12-->
+<!--                    });-->
+
+<!--                    view.when(() => {-->
+<!--                        housingLayer.when(() => {-->
+<!--                            view.goTo(housingLayer.fullExtent).catch((error) => {-->
+<!--                                console.error(error);-->
+<!--                            });-->
+<!--                        });-->
+<!--                    });-->
+
+<!--                    document.getElementById("streetsLayer").addEventListener("change", () => {-->
+<!--                        transportationLayer.visible = event.target.checked;-->
+<!--                    });-->
+<!--                });-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+</body>
+</html>
