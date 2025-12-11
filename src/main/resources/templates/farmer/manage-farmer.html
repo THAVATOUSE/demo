@@ -1929,6 +1929,60 @@
             'logistics-detail': LogisticsDetail
         },
         methods: {
+            async loadFarmerProducts() {
+        const farmerId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:8080/product/farmer/${farmerId}`);
+        if (response.data.code === 200) {
+            // 更新产品列表数据 (假设有products数组)
+            this.products = response.data.data;
+        }
+    },
+    async submitNewProduct() {
+        this.newProductForm.farmerId = localStorage.getItem('userId'); // 添加farmerId
+        const response = await axios.post('http://localhost:8080/product', this.newProductForm);
+        if (response.data.code === 200) {
+            this.$message.success('添加成功');
+            this.showAddProductDialogVisible = false;
+            this.loadFarmerProducts();
+        }
+    },
+    async submitEditProduct() {
+        const response = await axios.put(`http://localhost:8080/product/${this.editProductForm.id}`, this.editProductForm);
+        if (response.data.code === 200) {
+            this.$message.success('编辑成功');
+            this.showEditProductDialogVisible = false;
+            this.loadFarmerProducts();
+        }
+    },
+    async loadOrders() {
+        const farmerId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:8080/order/farmer/${farmerId}`);
+        if (response.data.code === 200) {
+            // 更新订单列表 (假设有orders数组在组件)
+            this.orders = response.data.data;
+        }
+    },
+    async loadDrones() {
+        const response = await axios.get('http://localhost:8080/drone/all');
+        if (response.data.code === 200) {
+            // 更新无人机列表
+            this.drones = response.data.data;
+        }
+    },
+    async registerDrone(droneForm) {
+        const response = await axios.post('http://localhost:8080/drone', droneForm);
+        if (response.data.code === 200) {
+            alert('注册成功');
+            this.loadDrones();
+        }
+    },
+    async updateDroneStatus(id, status) {
+        const response = await axios.put(`http://localhost:8080/drone/status/${id}`, null, { params: { status } });
+        if (response.data.code === 200) {
+            alert('更新成功');
+            this.loadDrones();
+        }
+    }
             handleMenuSelect(index) {
                 this.currentComponent = index;
                 this.showLogisticsDetail = false;
@@ -1995,7 +2049,12 @@
                 this.dialogImageUrl = file.url;
                 this.dialogVisible = true;
             }
-        }
+        },
+        mounted() {
+    this.loadFarmerProducts();
+    this.loadOrders();
+    this.loadDrones();
+}
     });
 </script>
 </body>

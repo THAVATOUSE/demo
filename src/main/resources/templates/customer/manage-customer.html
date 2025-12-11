@@ -8,6 +8,7 @@
     <!-- 引入 Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- 引入高德地图API -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://webapi.amap.com/maps?v=2.0&key=您的高德地图key"></script>
     <style>
         * {
@@ -279,38 +280,95 @@
 <script>
     // 基本信息页面
     const BasicInfo = {
+    data() {
+        return {
+            userForm: {
+                name: '',
+                phone: '',
+                email: '',
+                dress: '',  // 假设为 address，如果是 typo，改为 address
+                registrationTime: '2024-01-15'
+            }
+        };
+    },
         template: `
           <div>
             <h2>基本信息</h2>
             <p>这是你的个人信息页面。</p>
-            <el-form label-position="right" label-width="120px">
-              <el-form-item label="用户名">
-                <el-input value="张三" disabled></el-input>
+            <el-form label-position="right" label-width="120px" :model="userForm" ref="form" @submit.native.prevent="submitEdit">
+              <el-form-item label="用户名" prop="name">
+                <el-input v-model="userForm.name" disabled></el-input>
               </el-form-item>
-              <el-form-item label="手机号">
-                <el-input value="13800001111" disabled></el-input>
+              <el-form-item label="手机号" prop="phone">
+                <el-input v-model="userForm.phone"></el-input>
               </el-form-item>
-              <el-form-item label="邮箱">
-                <el-input value="zhangsan@example.com" disabled></el-input>
+              <el-form-item label="邮箱" prop="email">
+                <el-input v-model="userForm.email"></el-input>
               </el-form-item>
-              <el-form-item label="地址">
-                <el-input value="浙江省杭州市西湖区文三路123号" disabled></el-input>
+              <el-form-item label="地址" prop="dress">
+                <el-input v-model="userForm.dress"></el-input>
               </el-form-item>
               <el-form-item label="注册时间">
-                <el-input value="2024-01-15" disabled></el-input>
+                <el-input v-model="userForm.registrationTime" disabled></el-input>
               </el-form-item>
               <div class="button-group">
-                <el-button type="primary" @click="editInfo">编辑信息</el-button>
+                <el-button type="primary" native-type="submit">编辑信息</el-button>
               </div>
             </el-form>
           </div>
         `,
         methods: {
-            editInfo() {
-                alert('编辑个人信息');
+        async submitEdit() {
+            this.$refs.form.validate(async (valid) => {
+                if (valid) {
+                    const userId = localStorage.getItem('userId');
+                    if (!userId) {
+                        this.$message.error('请先登录');
+                        return;
+                    }
+                    const updateData = {
+                        phone: this.userForm.phone,
+                        email: this.userForm.email,
+                        address: this.userForm.dress
+                    };
+                    try {
+                        const response = await axios.put(`http://localhost:8080/user/${userId}`, updateData);
+                        if (response.data.code === 200) {
+                            this.$message.success('更新成功');
+                            // 新增：重新加载以显示最新数据（e.g., updateTime）
+                            await this.loadUserInfo();
+                        } else {
+                            this.$message.error(response.data.msg);
+                        }
+                    } catch (error) {
+                        this.$message.error('更新失败: ' + (error.response ? error.response.data.msg : error.message));
+                    }
+                }
+            });
+        },
+        async loadUserInfo() {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                try {
+                    const response = await axios.get(`http://localhost:8080/user/${userId}`);
+                    if (response.data.code === 200) {
+                        const data = response.data.data;
+                        this.userForm.name = data.username;
+                        this.userForm.phone = data.phone || '';
+                        this.userForm.email = data.email || '';
+                        this.userForm.dress = data.address || '';
+                        this.userForm.registrationTime = data.createTime ? new Date(data.createTime).toLocaleDateString() : '';  // 格式化日期
+                    }
+                } catch (error) {
+                    this.$message.error('加载失败');
+                }
             }
         }
-    };
+    },
+    mounted() {
+        this.loadUserInfo();
+    }
+};
     // 修改密码页面
     const ChangePassword = {
         template: `
@@ -1057,7 +1115,7 @@
             hideLogisticsDetail() {
                 this.showDetail = false;
             }
-        }
+       }
     });
 </script>
 </body>
