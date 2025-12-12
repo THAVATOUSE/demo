@@ -9,4 +9,5 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     // 根据用户名查询用户 (用于登录)
     User findByUsername(String username);
+    User findByEmail(String email);
 }

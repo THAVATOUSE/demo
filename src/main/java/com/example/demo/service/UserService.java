@@ -8,7 +8,7 @@ public interface UserService {
     User register(User user);
 
     // 用户登录
-    User login(String username, String password);
+    User login(String identifier, String password);
 
     // 根据ID获取用户信息
     User getUserById(String id);

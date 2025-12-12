@@ -31,16 +31,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(String username, String password) {
-        // 1. 查询用户
-        User user = userRepository.findByUsername(username);
-
-        // 2. 校验是否存在及密码是否正确
-        // (注：实际生产中建议使用 BCrypt 加密密码，此处为了演示方便使用明文比对)
+    public User login(String identifier, String password) {
+        User user;
+        if (identifier.contains("@")) {
+            user = userRepository.findByEmail(identifier);  // 如果含 @，视为邮箱
+        } else {
+            user = userRepository.findByUsername(identifier);
+        }
         if (user == null || !user.getPassword().equals(password)) {
             throw new RuntimeException("账号或密码错误！");
         }
-
         return user;
     }
 

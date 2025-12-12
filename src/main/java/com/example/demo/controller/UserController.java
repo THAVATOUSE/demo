@@ -22,9 +22,9 @@ public class UserController {
 
     // 登录
     @PostMapping("/login")
-    public Result<User> login(@RequestParam String username, @RequestParam String password) {
+    public Result<User> login(@RequestParam String identifier, @RequestParam String password) {
         try {
-            User user = userService.login(username, password);
+            User user = userService.login(identifier, password);
             return Result.success(user);
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
