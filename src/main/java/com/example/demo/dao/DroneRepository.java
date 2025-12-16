@@ -1,7 +1,7 @@
 package com.example.demo.dao;
 
-import com.example.demo.enums.DroneStatus ;
-import com.example.demo.entity.po.Drone ;
+import com.example.demo.enums.DroneStatus;
+import com.example.demo.entity.po.Drone;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
