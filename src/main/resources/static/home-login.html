@@ -5,10 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智农通农产品平台</title>
     <!-- 引入样式 -->
-    <link rel="stylesheet" href="/static/element-ui/theme-chalk/index.css">
-    <link rel="stylesheet" href="/static/css/style.css" />
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-image: url("/static/img/login1.jpg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #fff;
+}
+/* -----分割线----- */
 
+/*平台logo*/
+.header-image {
+    width: 100%; /* 图片宽度自适应 */
+    max-width: 150px; /* 设置最大宽度 */
+    height: auto; /* 高度自动调整以保持比例 */
+    display: block;
+    margin: 0 auto 20px auto; /* 居中并设置底部边距 */
+}
+
+/*平台名称样式 */
+.platform-name {
+    position: absolute;
+    top: 150px; /* 调整文字与按钮的距离 */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 120px;
+    font-weight: bold;
+    color: #ffffff;
+    white-space: nowrap; /* 添加此属性防止文字换行 */
+}
+
+/* -----分割线----- */
+
+/* 这是三个板块跳转按钮整体的样式 */
+.button-container {
+    position: absolute;
+    bottom: 100px; /* 距离底部的距离 */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+/* -----分割线----- */
+
+/* 这是三个板块形状的样式 */
+.button {
+    width: 200px;
+    height: 150px;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 30px; /* 按钮之间的间距 */
+    transition: transform 0.3s ease; /* 添加点击时的动画效果 */
+    align-content: center;
+
+}
+
+/* -----分割线----- */
+
+/* 这是三个按钮分别的样式，如颜色等 */
+.farmer-button {
+    background-color: rgb(204, 222, 230, 0.5);
+}
+
+.consumer-button {
+    background-color: rgba(204, 222, 230, 0.5)
+}
+
+.drone-button {
+    background-color: rgba(204, 222, 230, 0.5)
+}
+
+
+/* -----分割线----- */
+
+
+/* 这是按钮被点击后的样式 */
+.button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    background-color: #f0f0f0;
+}
+
+/* 这是按钮的图标和文字样式 */
+.button-icon {
+    color: white;
+    font-size: 80px;
+}
+
+/* 这是按钮的文字样式 */
+.button-text {
+    color: white;
+    font-size: 30px;
+    text-align: center;
+    margin-top: 5px;
+}
+    </style>
 </head>
 <body>
 <div id="app">
@@ -48,10 +162,10 @@
 </div>
 
 <!-- 引入依赖 -->
-<script src="/static/js/vue.min.js"></script>
-<script src="/static/element-ui/index.js"></script>
+
+
 <script src="https://js.arcgis.com/4.32/ "></script>
-<script src="/static/js/index.js"></script>
+
 
 
 <!-- Vue 初始化 -->

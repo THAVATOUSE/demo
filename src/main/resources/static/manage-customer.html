@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <title>智农通农产品交易平台 - 个人中心</title>
     <!-- 引入 Element UI 样式 -->
-    <link rel="stylesheet" href="/static/element-ui/theme-chalk/index.css">
-    <!-- 引入 Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <!-- 引入高德地图API -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://webapi.amap.com/maps?v=2.0&key=您的高德地图key"></script>
+
     <style>
         * {
             margin: 0;
@@ -231,8 +232,8 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="#"><i class="fas fa-home"></i> 首页</a></li>
-                    <li><a href="#"><i class="fas fa-apple-alt"></i> 农产品</a></li>
+                    <li><a href="/home-customer.html"><i class="fas fa-home"></i> 首页</a></li>
+                    <li><a href="/home-customer.html"><i class="fas fa-apple-alt"></i> 农产品</a></li>
                     <li><a href="#"><i class="fas fa-tractor"></i> 供应商</a></li>
                     <li><a href="#"><i class="fas fa-info-circle"></i> 关于我们</a></li>
                     <li><a href="#"><i class="fas fa-phone"></i> 联系我们</a></li>
@@ -274,7 +275,6 @@
     </el-container>
 </div>
 <!-- 引入 Vue 和 Element UI -->
-<script src="/static/js/vue.min.js"></script>
 <script src="/static/element-ui/index.js"></script>
 <!-- 组件定义 -->
 <script>
@@ -486,13 +486,13 @@
                 pageSize: 10,
                 tableData: [
                     { id: '1001', name: '有机绿色蔬菜组合', price: 49.9, status: '在售', image: '/static/img/veg.png' },
-                    { id: '1002', name: '纯天然蜂蜜500g', price: 79.9, status: '在售', image: '/static/img/honey.png' },
-                    { id: '1003', name: '农家散养土鸡蛋30枚', price: 59.9, status: '在售', image: '/static/img/egg.png' },
+                    { id: '1002', name: '纯天然蜂蜜500g', price: 79.9, status: '在售', image: '/static/img/honey.webp' },
+                    { id: '1003', name: '农家散养土鸡蛋30枚', price: 59.9, status: '在售', image: '/static/img/egg.jpg' },
                     { id: '1004', name: '新鲜草莓1kg', price: 39.9, status: '在售', image: '/static/img/strawberry.png' },
-                    { id: '1005', name: '有机大米5kg', price: 89.9, status: '在售', image: '/static/img/rice.png' },
-                    { id: '1006', name: '新鲜橙子5斤', price: 29.9, status: '预售', image: '/static/img/orange.png' },
-                    { id: '1007', name: '优质橄榄油500ml', price: 129.9, status: '在售', image: '/static/img/oil.png' },
-                    { id: '1008', name: '紫薯5斤装', price: 24.9, status: '在售', image: '/static/img/ps potato.png' }
+                    { id: '1005', name: '有机大米5kg', price: 89.9, status: '在售', image: '/static/img/rice.jpg' },
+                    { id: '1006', name: '新鲜橙子5斤', price: 29.9, status: '预售', image: '/static/img/orange.v2' },
+                    { id: '1007', name: '优质橄榄油500ml', price: 129.9, status: '在售', image: '/static/img/oil.v2' },
+                    { id: '1008', name: '紫薯5斤装', price: 24.9, status: '在售', image: '/static/img/ps potato.jpg' }
                 ]
             };
         },
@@ -583,8 +583,8 @@
             return {
                 cartItems: [
                     { id: 'c001', name: '有机绿色蔬菜组合', price: 49.9, quantity: 1, attributes: '500g/份', image: '/static/img/veg.png', selected: true },
-                    { id: 'c002', name: '纯天然蜂蜜500g', price: 79.9, quantity: 2, attributes: '瓶装', image: '/static/img/honey.png', selected: true },
-                    { id: 'c003', name: '农家散养土鸡蛋30枚', price: 59.9, quantity: 1, attributes: '礼盒装', image: '/static/img/egg.png', selected: false }
+                    { id: 'c002', name: '纯天然蜂蜜500g', price: 79.9, quantity: 2, attributes: '瓶装', image: '/static/img/honey.webp', selected: true },
+                    { id: 'c003', name: '农家散养土鸡蛋30枚', price: 59.9, quantity: 1, attributes: '礼盒装', image: '/static/img/egg.jpg', selected: false }
                 ]
             };
         },
@@ -734,8 +734,8 @@
                     {
                         orderNumber: '20250614002',
                         products: [
-                            { name: '纯天然蜂蜜500g', price: 79.9, quantity: 1, attributes: '瓶装', image: '/static/img/honey.png' },
-                            { name: '优质橄榄油500ml', price: 129.9, quantity: 1, attributes: '礼盒装', image: '/static/img/oil.png' }
+                            { name: '纯天然蜂蜜500g', price: 79.9, quantity: 1, attributes: '瓶装', image: '/static/img/honey.webp' },
+                            { name: '优质橄榄油500ml', price: 129.9, quantity: 1, attributes: '礼盒装', image: '/static/img/oil.v2' }
                         ],
                         totalPrice: 209.8,
                         status: '已付款',
@@ -744,8 +744,8 @@
                     {
                         orderNumber: '20250612003',
                         products: [
-                            { name: '有机大米5kg', price: 89.9, quantity: 1, attributes: '袋装', image: '/static/img/rice.png' },
-                            { name: '紫薯5斤装', price: 24.9, quantity: 2, attributes: '袋装', image: '/static/img/ps potato.png' }
+                            { name: '有机大米5kg', price: 89.9, quantity: 1, attributes: '袋装', image: '/static/img/rice.jpg' },
+                            { name: '紫薯5斤装', price: 24.9, quantity: 2, attributes: '袋装', image: '/static/img/ps potato.jpg' }
                         ],
                         totalPrice: 139.7,
                         status: '已付款',
@@ -1136,7 +1136,7 @@
                     alert('获取用户信息失败: ' + response.data.msg);
                 }
             } catch (error) {
-                alert('网络错误，无法获取用户信息。请检查后端是否运行。');
+                alert('您的信息：');
                 console.error(error);
             }
         }
