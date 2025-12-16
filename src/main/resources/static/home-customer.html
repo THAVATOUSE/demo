@@ -1027,7 +1027,7 @@
         <div class="nav-container">
             <!-- 修改：移除了用户中心的下拉菜单，直接点击用户中心弹出登录框 -->
             <div class="nav-item user-center" id="user-center">
-                <i class="fas fa-shopping-cart"></i>用户中心
+                <i class="fas fa-shopping-cart" onclick="window.location.href='/manager-customer.html'"></i>用户中心
             </div>
         </div>
     </div>
@@ -1628,10 +1628,10 @@
         let currentUserType = 'farmer'; // 默认为农户登录
 
         // 用户中心点击事件 - 直接显示登录模态框
-        document.getElementById('user-center').addEventListener('click', function(e) {
-            e.preventDefault();
-            showLoginModal();
-        });
+        //document.getElementById('user-center').addEventListener('click', function(e) {
+            //e.preventDefault();
+            //showLoginModal();
+        //});
 
         // 显示登录模态框
         function showLoginModal() {

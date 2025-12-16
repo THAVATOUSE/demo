@@ -485,14 +485,14 @@
                 currentPage: 1,
                 pageSize: 10,
                 tableData: [
-                    { id: '1001', name: '有机绿色蔬菜组合', price: 49.9, status: '在售', image: '/static/img/veg.png' },
-                    { id: '1002', name: '纯天然蜂蜜500g', price: 79.9, status: '在售', image: '/static/img/honey.webp' },
-                    { id: '1003', name: '农家散养土鸡蛋30枚', price: 59.9, status: '在售', image: '/static/img/egg.jpg' },
-                    { id: '1004', name: '新鲜草莓1kg', price: 39.9, status: '在售', image: '/static/img/strawberry.png' },
-                    { id: '1005', name: '有机大米5kg', price: 89.9, status: '在售', image: '/static/img/rice.jpg' },
-                    { id: '1006', name: '新鲜橙子5斤', price: 29.9, status: '预售', image: '/static/img/orange.v2' },
-                    { id: '1007', name: '优质橄榄油500ml', price: 129.9, status: '在售', image: '/static/img/oil.v2' },
-                    { id: '1008', name: '紫薯5斤装', price: 24.9, status: '在售', image: '/static/img/ps potato.jpg' }
+                    { id: '1001', name: '有机绿色蔬菜组合', price: 49.9, status: '在售', image: '/img/veg.png' },
+                    { id: '1002', name: '纯天然蜂蜜500g', price: 79.9, status: '在售', image: '/img/honey.webp' },
+                    { id: '1003', name: '农家散养土鸡蛋30枚', price: 59.9, status: '在售', image: '/img/egg.jpg' },
+                    { id: '1004', name: '新鲜草莓1kg', price: 39.9, status: '在售', image: '/img/strawberry.png' },
+                    { id: '1005', name: '有机大米5kg', price: 89.9, status: '在售', image: '/img/rice.jpg' },
+                    { id: '1006', name: '新鲜橙子5斤', price: 29.9, status: '预售', image: '/img/orange.v2' },
+                    { id: '1007', name: '优质橄榄油500ml', price: 129.9, status: '在售', image: '/img/oil.v2' },
+                    { id: '1008', name: '紫薯5斤装', price: 24.9, status: '在售', image: '/img/ps potato.jpg' }
                 ]
             };
         },
@@ -582,9 +582,9 @@
         data() {
             return {
                 cartItems: [
-                    { id: 'c001', name: '有机绿色蔬菜组合', price: 49.9, quantity: 1, attributes: '500g/份', image: '/static/img/veg.png', selected: true },
-                    { id: 'c002', name: '纯天然蜂蜜500g', price: 79.9, quantity: 2, attributes: '瓶装', image: '/static/img/honey.webp', selected: true },
-                    { id: 'c003', name: '农家散养土鸡蛋30枚', price: 59.9, quantity: 1, attributes: '礼盒装', image: '/static/img/egg.jpg', selected: false }
+                    { id: 'c001', name: '有机绿色蔬菜组合', price: 49.9, quantity: 1, attributes: '500g/份', image: '/img/veg.png', selected: true },
+                    { id: 'c002', name: '纯天然蜂蜜500g', price: 79.9, quantity: 2, attributes: '瓶装', image: '/img/honey.webp', selected: true },
+                    { id: 'c003', name: '农家散养土鸡蛋30枚', price: 59.9, quantity: 1, attributes: '礼盒装', image: '/img/egg.jpg', selected: false }
                 ]
             };
         },
@@ -724,8 +724,8 @@
                     {
                         orderNumber: '20250615001',
                         products: [
-                            { name: '有机绿色蔬菜组合', price: 49.9, quantity: 2, attributes: '500g/份', image: '/static/img/veg.png' },
-                            { name: '新鲜草莓1kg', price: 39.9, quantity: 1, attributes: '盒装', image: '/static/img/strawberry.png' }
+                            { name: '有机绿色蔬菜组合', price: 49.9, quantity: 2, attributes: '500g/份', image: '/img/veg.png' },
+                            { name: '新鲜草莓1kg', price: 39.9, quantity: 1, attributes: '盒装', image: '/img/strawberry.png' }
                         ],
                         totalPrice: 139.7,
                         status: '待付款',
@@ -734,8 +734,8 @@
                     {
                         orderNumber: '20250614002',
                         products: [
-                            { name: '纯天然蜂蜜500g', price: 79.9, quantity: 1, attributes: '瓶装', image: '/static/img/honey.webp' },
-                            { name: '优质橄榄油500ml', price: 129.9, quantity: 1, attributes: '礼盒装', image: '/static/img/oil.v2' }
+                            { name: '纯天然蜂蜜500g', price: 79.9, quantity: 1, attributes: '瓶装', image: '/img/honey.webp' },
+                            { name: '优质橄榄油500ml', price: 129.9, quantity: 1, attributes: '礼盒装', image: '/img/oil.v2' }
                         ],
                         totalPrice: 209.8,
                         status: '已付款',
@@ -744,8 +744,8 @@
                     {
                         orderNumber: '20250612003',
                         products: [
-                            { name: '有机大米5kg', price: 89.9, quantity: 1, attributes: '袋装', image: '/static/img/rice.jpg' },
-                            { name: '紫薯5斤装', price: 24.9, quantity: 2, attributes: '袋装', image: '/static/img/ps potato.jpg' }
+                            { name: '有机大米5kg', price: 89.9, quantity: 1, attributes: '袋装', image: '/img/rice.jpg' },
+                            { name: '紫薯5斤装', price: 24.9, quantity: 2, attributes: '袋装', image: '/img/ps potato.jpg' }
                         ],
                         totalPrice: 139.7,
                         status: '已付款',
