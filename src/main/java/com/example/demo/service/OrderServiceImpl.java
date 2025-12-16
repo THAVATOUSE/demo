@@ -45,18 +45,24 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("库存不足");
         }
 
-        // 3. 分配无人机
-        Drone drone = droneService.findAvailableDrone();
+        // 4. 计算订单总重量
+        Double productWeight = product.getWeight();
+        if (productWeight == null) {
+            productWeight = 0.1; // 默认重量0.1kg，如果产品未设置重量
+        }
+        Double orderWeight = productWeight * quantity;
+        
+        // 5. 分配无人机 (使用智能调度算法)
+        Drone drone = droneService.findSuitableDrone(orderWeight);
         if (drone == null) {
-            // 如果没有无人机，实际业务可能会进入等待队列，这里简单处理为抛出异常或仅创建订单待调度
-            // 演示目的：我们抛出异常，强制要求有无人机才能配送
-            throw new RuntimeException("暂无可用无人机进行配送，请稍后再试");
+            // 如果没有合适的无人机，实际业务可能会进入等待队列，这里简单处理为抛出异常
+            throw new RuntimeException("暂无合适的无人机进行配送，请稍后再试");
         }
 
-        // 4. 锁定无人机状态
+        // 6. 锁定无人机状态
         droneService.updateStatus(drone.getId(), DroneStatus.BUSY);
 
-        // 5. 创建订单对象
+        // 7. 创建订单对象
         Order order = new Order();
         order.setOrderNo(UUID.randomUUID().toString().replace("-", "")); // 生成唯一订单号
         order.setCustomerId(customerId);
@@ -82,5 +88,58 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrdersByFarmer(String farmerId) {
         return orderRepository.findByFarmerId(farmerId);
+    }
+    
+    @Override
+    public Order getOrderById(String orderId) {
+        return orderRepository.findById(orderId).orElse(null);
+    }
+    
+    @Override
+    @Transactional
+    public Order updateOrderStatus(String orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            throw new RuntimeException("订单不存在");
+        }
+        
+        // 更新订单状态
+        order.setStatus(status);
+        order.setUpdateTime(new Date());
+        
+        // 如果订单完成配送，释放无人机
+        if (status == OrderStatus.COMPLETED && order.getDroneId() != null) {
+            droneService.updateStatus(order.getDroneId(), DroneStatus.IDLE);
+        }
+        
+        return orderRepository.save(order);
+    }
+    
+    @Override
+    @Transactional
+    public Order cancelOrder(String orderId) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            throw new RuntimeException("订单不存在");
+        }
+        
+        // 检查订单是否可以取消
+        if (order.getStatus() == OrderStatus.COMPLETED || order.getStatus() == OrderStatus.CANCELLED) {
+            throw new RuntimeException("该订单状态不允许取消");
+        }
+        
+        // 更新订单状态为已取消
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setUpdateTime(new Date());
+        
+        // 归还库存
+        productService.increaseStock(order.getProductId(), order.getQuantity());
+        
+        // 释放无人机
+        if (order.getDroneId() != null) {
+            droneService.updateStatus(order.getDroneId(), DroneStatus.IDLE);
+        }
+        
+        return orderRepository.save(order);
     }
 }

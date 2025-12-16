@@ -36,6 +36,9 @@ public class Product {
     // 图片 URL 地址
     private String imageUrl;
 
+    // 产品重量 (kg)
+    private Double weight;
+
     // 所属农户的 ID (关联 User 表)
     @Indexed
     private String farmerId;
@@ -101,6 +104,14 @@ public class Product {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 
     public String getFarmerId() {

@@ -19,4 +19,7 @@ public interface ProductService {
 
     // 扣减库存 (返回 true 表示扣减成功，false 表示库存不足)
     boolean decreaseStock(String productId, Integer quantity);
+    
+    // 增加库存
+    boolean increaseStock(String productId, Integer quantity);
 }

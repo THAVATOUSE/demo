@@ -1,13 +1,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.po.Order;
+import com.example.demo.enums.OrderStatus;
 import com.example.demo.service.OrderService;
 import com.example.demo.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:63343")
 @RestController
 @RequestMapping("/order")
 public class OrderController {
@@ -36,5 +37,35 @@ public class OrderController {
     @GetMapping("/farmer/{farmerId}")
     public Result<List<Order>> getByFarmer(@PathVariable String farmerId) {
         return Result.success(orderService.getOrdersByFarmer(farmerId));
+    }
+    
+    // 查询订单详情
+    @GetMapping("/{orderId}")
+    public Result<Order> getOrderById(@PathVariable String orderId) {
+        Order order = orderService.getOrderById(orderId);
+        if (order != null) {
+            return Result.success(order);
+        }
+        return Result.error("订单不存在");
+    }
+    
+    // 更新订单状态
+    @PutMapping("/status/{orderId}")
+    public Result<Order> updateStatus(@PathVariable String orderId, @RequestParam OrderStatus status) {
+        try {
+            return Result.success(orderService.updateOrderStatus(orderId, status));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    
+    // 取消订单
+    @PutMapping("/cancel/{orderId}")
+    public Result<Order> cancelOrder(@PathVariable String orderId) {
+        try {
+            return Result.success(orderService.cancelOrder(orderId));
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
     }
 }

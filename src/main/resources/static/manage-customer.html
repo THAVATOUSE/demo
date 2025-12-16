@@ -332,7 +332,7 @@
                         address: this.userForm.dress
                     };
                     try {
-                        const response = await axios.put(`http://localhost:8080/user/${userId}`, updateData);
+                        const response = await axios.put(`http://localhost:8066/user/${userId}`, updateData);
                         if (response.data.code === 200) {
                             this.$message.success('更新成功');
                             // 新增：重新加载以显示最新数据（e.g., updateTime）
@@ -350,7 +350,7 @@
             const userId = localStorage.getItem('userId');
             if (userId) {
                 try {
-                    const response = await axios.get(`http://localhost:8080/user/${userId}`);
+                    const response = await axios.get(`http://localhost:8066/user/${userId}`);
                     if (response.data.code === 200) {
                         const data = response.data.data;
                         this.userForm.name = data.username;
@@ -1118,7 +1118,7 @@
             const userId = localStorage.getItem('userId');
             if (!userId) {
                 alert('请先登录');
-                window.location.href = '/customer-login.html';
+                //window.location.href = '/customer-login.html';
                 return;
             }
             try {

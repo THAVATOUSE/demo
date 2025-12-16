@@ -39,6 +39,45 @@ public class DroneServiceImpl implements DroneService {
         }
         return null; // 无可用无人机
     }
+    
+    @Override
+    public Drone findSuitableDrone(Double orderWeight) {
+        // 查询状态为 IDLE 的无人机列表
+        List<Drone> idleDrones = droneRepository.findByStatus(DroneStatus.IDLE);
+        if (idleDrones == null || idleDrones.isEmpty()) {
+            return null; // 无可用无人机
+        }
+        
+        // 筛选出有足够载重能力的无人机
+        List<Drone> suitableDrones = idleDrones.stream()
+                .filter(drone -> drone.getCapacity() != null && drone.getCapacity() >= orderWeight)
+                .filter(drone -> drone.getBattery() != null && drone.getBattery() > 20) // 电池电量需大于20%
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (suitableDrones.isEmpty()) {
+            return null; // 无合适载重的无人机
+        }
+        
+        // 智能调度策略：
+        // 1. 优先选择电池电量较高的无人机
+        // 2. 其次选择载重能力与订单重量最接近的无人机（负载均衡）
+        Drone bestDrone = suitableDrones.stream()
+                .sorted((d1, d2) -> {
+                    // 首先比较电池电量
+                    int batteryCompare = Integer.compare(d2.getBattery(), d1.getBattery());
+                    if (batteryCompare != 0) {
+                        return batteryCompare;
+                    }
+                    // 电池电量相同时，选择载重与订单重量最接近的
+                    double diff1 = Math.abs(d1.getCapacity() - orderWeight);
+                    double diff2 = Math.abs(d2.getCapacity() - orderWeight);
+                    return Double.compare(diff1, diff2);
+                })
+                .findFirst()
+                .orElse(null);
+        
+        return bestDrone;
+    }
 
     @Override
     public void updateStatus(String droneId, DroneStatus status) {

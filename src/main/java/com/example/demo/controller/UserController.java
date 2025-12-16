@@ -9,11 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-
 @RestController
+@CrossOrigin(origins = "http://localhost:63343")
 @RequestMapping("/user")
 public class UserController {
-
     @Autowired
     private UserService userService;
 

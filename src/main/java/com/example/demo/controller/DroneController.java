@@ -8,11 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:63343")
 @RestController
 @RequestMapping("/drone")
 public class DroneController {
-
     @Autowired
     private DroneService droneService;
 

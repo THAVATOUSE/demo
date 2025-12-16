@@ -63,4 +63,21 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
         return true;
     }
+    
+    @Override
+    public synchronized boolean increaseStock(String productId, Integer quantity) {
+        // 1. 查询产品
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (!optionalProduct.isPresent()) {
+            return false;
+        }
+
+        Product product = optionalProduct.get();
+
+        // 2. 增加库存
+        product.setStock(product.getStock() + quantity);
+        product.setUpdateTime(new Date());
+        productRepository.save(product);
+        return true;
+    }
 }

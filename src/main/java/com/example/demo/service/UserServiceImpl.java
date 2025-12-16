@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.entity.po.User;
 import com.example.demo.dao.UserRepository;
 import com.example.demo.service.UserService;
+import com.example.demo.enums.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +22,23 @@ public class UserServiceImpl implements UserService {
         if (existUser != null) {
             throw new RuntimeException("用户名已存在，请更换！");
         }
+        
+        // 2. 检查邮箱是否已存在
+        existUser = userRepository.findByEmail(user.getEmail());
+        if (existUser != null) {
+            throw new RuntimeException("邮箱已被注册，请更换！");
+        }
 
-        // 2. 补全基础信息
+        // 3. 补全基础信息
         user.setCreateTime(new Date());
         user.setUpdateTime(new Date());
+        
+        // 4. 设置默认角色为消费者
+        if (user.getRole() == null) {
+            user.setRole(UserRole.CUSTOMER);
+        }
 
-        // 3. 保存到数据库
+        // 5. 保存到数据库
         return userRepository.save(user);
     }
 

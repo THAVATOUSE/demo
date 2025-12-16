@@ -14,6 +14,9 @@ public interface DroneService {
 
     // 寻找一架可用的无人机 (状态为 IDLE)
     Drone findAvailableDrone();
+    
+    // 根据订单重量寻找合适的无人机 (智能调度)
+    Drone findSuitableDrone(Double orderWeight);
 
     // 更新无人机状态
     void updateStatus(String droneId, DroneStatus status);
