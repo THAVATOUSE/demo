@@ -536,16 +536,16 @@
             <el-table-column label="商品信息" width="400">
               <template slot-scope="scope">
                 <div class="cart-product">
-                  <img :src="scope.row.image" alt="商品图片" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; float: left; margin-right: 15px;">
+                  <img :src="scope.row.product?.imageUrl || '/img/default.jpg'" alt="商品图片" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; float: left; margin-right: 15px;">
                   <div>
-                    <div class="cart-product-name">{{ scope.row.name }}</div>
-                    <div class="cart-product-attr">{{ scope.row.attributes }}</div>
+                    <div class="cart-product-name">{{ scope.row.product?.name || '未知商品' }}</div>
+                    <div class="cart-product-attr">{{ scope.row.product?.weight || 0 }}kg/份</div>
                   </div>
                 </div>
               </template>
             </el-table-column>
             <el-table-column label="单价" width="120">
-              <template slot-scope="scope">¥ {{ scope.row.price }}</template>
+              <template slot-scope="scope">¥ {{ scope.row.product?.price || 0 }}</template>
             </el-table-column>
             <el-table-column label="数量" width="180">
               <template slot-scope="scope">
@@ -558,7 +558,7 @@
               </template>
             </el-table-column>
             <el-table-column label="小计" width="120">
-              <template slot-scope="scope">¥ {{ scope.row.price * scope.row.quantity }}</template>
+              <template slot-scope="scope">¥ {{ (scope.row.product?.price || 0) * scope.row.quantity }}</template>
             </el-table-column>
             <el-table-column label="操作" width="100">
               <template slot-scope="scope">
@@ -581,18 +581,15 @@
         </div>`,
         data() {
             return {
-                cartItems: [
-                    { id: 'c001', name: '有机绿色蔬菜组合', price: 49.9, quantity: 1, attributes: '500g/份', image: '/img/veg.png', selected: true },
-                    { id: 'c002', name: '纯天然蜂蜜500g', price: 79.9, quantity: 2, attributes: '瓶装', image: '/img/honey.webp', selected: true },
-                    { id: 'c003', name: '农家散养土鸡蛋30枚', price: 59.9, quantity: 1, attributes: '礼盒装', image: '/img/egg.jpg', selected: false }
-                ]
+                cartItems: [],
+                productsMap: {} // 存储商品信息的映射表
             };
         },
         computed: {
             totalPrice() {
                 return this.cartItems
                     .filter(item => item.selected)
-                    .reduce((total, item) => total + item.price * item.quantity, 0)
+                    .reduce((total, item) => total + (item.product?.price || 0) * item.quantity, 0)
                     .toFixed(2);
             },
             selectedCount() {
@@ -600,20 +597,101 @@
             }
         },
         methods: {
-            handleQuantityChange(item) {
-                console.log('数量变化', item);
+            async loadCartData() {
+                // 在实际应用中应该从登录状态获取userId
+                const userId = 'test-user';
+                try {
+                    // 获取购物车列表
+                    const cartResponse = await axios.get('http://localhost:8066/cart/list/' + userId);
+                    if (cartResponse.data.code === 200) {
+                        this.cartItems = cartResponse.data.data || [];
+                        
+                        // 为每个购物车项添加selected属性
+                        this.cartItems.forEach(item => {
+                            item.selected = true;
+                        });
+                        
+                        // 获取商品详情
+                        await this.loadProductDetails();
+                    }
+                } catch (error) {
+                    console.error('获取购物车数据失败：', error);
+                    this.$message.error('获取购物车数据失败，请稍后重试。');
+                }
             },
-            removeItem(item) {
+            async loadProductDetails() {
+                // 收集所有商品ID
+                const productIds = [...new Set(this.cartItems.map(item => item.productId))];
+                if (productIds.length === 0) return;
+                
+                try {
+                    // 获取所有商品详情（这里需要后端提供批量获取商品的API，暂时模拟）
+                    // 实际项目中应该调用批量获取商品的API
+                    for (const productId of productIds) {
+                        try {
+                            const productResponse = await axios.get('http://localhost:8066/product/' + productId);
+                            if (productResponse.data.code === 200) {
+                                this.productsMap[productId] = productResponse.data.data;
+                            }
+                        } catch (error) {
+                            console.error(`获取商品 ${productId} 详情失败：`, error);
+                        }
+                    }
+                    
+                    // 将商品信息关联到购物车项
+                    this.cartItems.forEach(item => {
+                        item.product = this.productsMap[item.productId];
+                    });
+                } catch (error) {
+                    console.error('获取商品详情失败：', error);
+                    this.$message.error('获取商品详情失败，请稍后重试。');
+                }
+            },
+            async handleQuantityChange(item) {
+                const userId = 'test-user'; // 在实际应用中应该从登录状态获取
+                try {
+                    const response = await axios.put('http://localhost:8066/cart/update', {
+                        userId: userId,
+                        productId: item.productId,
+                        quantity: item.quantity
+                    });
+                    if (response.data.code === 200) {
+                        this.$message.success('数量更新成功');
+                    } else {
+                        this.$message.error('数量更新失败：' + response.data.message);
+                        // 恢复原来的数量
+                        this.loadCartData();
+                    }
+                } catch (error) {
+                    console.error('更新数量失败：', error);
+                    this.$message.error('更新数量失败，请稍后重试。');
+                    // 恢复原来的数量
+                    this.loadCartData();
+                }
+            },
+            async removeItem(item) {
+                const userId = 'test-user'; // 在实际应用中应该从登录状态获取
                 this.$confirm('确定要从购物车中移除该商品吗？', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
-                }).then(() => {
-                    this.cartItems = this.cartItems.filter(i => i.id !== item.id);
-                    this.$message({
-                        type: 'success',
-                        message: '已从购物车移除'
-                    });
+                }).then(async () => {
+                    try {
+                        const response = await axios.delete(`http://localhost:8066/cart/delete/${userId}/${item.productId}`);
+                        if (response.data.code === 200) {
+                            this.$message({
+                                type: 'success',
+                                message: '已从购物车移除'
+                            });
+                            // 重新加载购物车数据
+                            this.loadCartData();
+                        } else {
+                            this.$message.error('删除失败：' + response.data.message);
+                        }
+                    } catch (error) {
+                        console.error('删除商品失败：', error);
+                        this.$message.error('删除失败，请稍后重试。');
+                    }
                 }).catch(() => {
                     // 取消操作
                 });
@@ -624,7 +702,7 @@
                     item.selected = !allSelected;
                 });
             },
-            deleteSelected() {
+            async deleteSelected() {
                 const selectedItems = this.cartItems.filter(item => item.selected);
                 if (selectedItems.length === 0) {
                     this.$message({
@@ -633,16 +711,30 @@
                     });
                     return;
                 }
+                
                 this.$confirm('确定要删除选中的商品吗？', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
-                }).then(() => {
-                    this.cartItems = this.cartItems.filter(item => !item.selected);
+                }).then(async () => {
+                    const userId = 'test-user'; // 在实际应用中应该从登录状态获取
+                    
+                    // 批量删除选中的商品
+                    for (const item of selectedItems) {
+                        try {
+                            await axios.delete(`http://localhost:8066/cart/delete/${userId}/${item.productId}`);
+                        } catch (error) {
+                            console.error(`删除商品 ${item.productId} 失败：`, error);
+                        }
+                    }
+                    
                     this.$message({
                         type: 'success',
                         message: '已删除选中商品'
                     });
+                    
+                    // 重新加载购物车数据
+                    this.loadCartData();
                 }).catch(() => {
                     // 取消操作
                 });
@@ -661,6 +753,9 @@
                     message: `结算 ${selectedItems.length} 件商品，总计 ¥${this.totalPrice}`
                 });
             }
+        },
+        mounted() {
+            this.loadCartData();
         }
     };
     // 未发货订单页面

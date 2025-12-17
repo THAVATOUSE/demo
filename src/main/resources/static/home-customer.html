@@ -1027,7 +1027,7 @@
         <div class="nav-container">
             <!-- 修改：移除了用户中心的下拉菜单，直接点击用户中心弹出登录框 -->
             <div class="nav-item user-center" id="user-center">
-                <i class="fas fa-shopping-cart" onclick="window.location.href='/manager-customer.html'"></i>用户中心
+                <i class="fas fa-shopping-cart"></i>用户中心
             </div>
         </div>
     </div>
@@ -1040,7 +1040,7 @@
         <div class="banner-section">
             <!-- 轮播图1：大连樱桃 -->
             <div class="banner-slide active">
-                <img src="/static/img/lbgg1.png" alt="大连樱桃促销广告">
+                <img src="/img/lbgg1.png" alt="大连樱桃促销广告">
                 <div class="banner-content">
                     <h2 class="banner-title">大连美早樱桃 新鲜上市</h2>
                     <p class="banner-desc">金州区特产，果大核小，甜度可达20+，现摘现发，顺丰直达</p>
@@ -1055,7 +1055,7 @@
 
             <!-- 轮播图2：大连海参 -->
             <div class="banner-slide">
-                <img src="/static/img/lbgg2.jpg" alt="大连海参促销广告">
+                <img src="/img/lbgg2.jpg" alt="大连海参促销广告">
                 <div class="banner-content">
                     <h2 class="banner-title">大连深海野生海参</h2>
                     <p class="banner-desc">长海县深海养殖，肉质紧实，富含蛋白质和微量元素，滋补佳品</p>
@@ -1070,7 +1070,7 @@
 
             <!-- 轮播图3：大连海鲜组合 -->
             <div class="banner-slide">
-                <img src="/static/img/lbgg3.png" alt="大连海鲜组合促销广告">
+                <img src="/img/lbgg3.png" alt="大连海鲜组合促销广告">
                 <div class="banner-content">
                     <h2 class="banner-title">大连海鲜组合套餐</h2>
                     <p class="banner-desc">扇贝、海螺、海蛎子组合，当日捕捞，冷链配送，新鲜直达</p>
@@ -1145,9 +1145,9 @@
 
         <div class="products-container">
             <!-- 农产品卡片1 - 大连樱桃 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="1">
                 <div class="product-image">
-                    <img src="/static/img/lbgg1.png" alt="大连樱桃">
+                    <img src="/img/lbgg1.png" alt="大连樱桃">
                     <div class="product-tag hot">热卖</div>
                 </div>
                 <div class="product-info">
@@ -1170,9 +1170,9 @@
             </div>
 
             <!-- 农产品卡片2 - 大连海参 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="2">
                 <div class="product-image">
-                    <img src="/static/img/lbgg2.jpg" alt="大连海参">
+                    <img src="/img/lbgg2.jpg" alt="大连海参">
                     <div class="product-tag new">新品</div>
                 </div>
                 <div class="product-info">
@@ -1195,9 +1195,9 @@
             </div>
 
             <!-- 农产品卡片3 - 大连富士苹果 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="3">
                 <div class="product-image">
-                    <img src="/static/img/apple.png" alt="大连苹果">
+                    <img src="/img/apple.png" alt="大连苹果">
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">大连瓦房店富士苹果</h3>
@@ -1219,9 +1219,9 @@
             </div>
 
             <!-- 农产品卡片4 - 大连扇贝 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="4">
                 <div class="product-image">
-                    <img src="/static/img/scallop.png" alt="大连扇贝">
+                    <img src="/img/scallop.png" alt="大连扇贝">
                     <div class="product-tag discount">限时折扣</div>
                 </div>
                 <div class="product-info">
@@ -1244,9 +1244,9 @@
             </div>
 
             <!-- 农产品卡片5 - 大连蓝莓 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="5">
                 <div class="product-image">
-                    <img src="/static/img/blueberry.webp" alt="大连蓝莓">
+                    <img src="/img/blueberry.webp" alt="大连蓝莓">
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">大连庄河有机蓝莓</h3>
@@ -1268,9 +1268,9 @@
             </div>
 
             <!-- 农产品卡片6 - 大连海带 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="6">
                 <div class="product-image">
-                    <img src="/static/img/kelp.png" alt="大连海带">
+                    <img src="/img/kelp.png" alt="大连海带">
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">大连深海海带</h3>
@@ -1292,9 +1292,9 @@
             </div>
 
             <!-- 农产品卡片7 - 大连草莓 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="7">
                 <div class="product-image">
-                    <img src="/static/img/strawberry.png" alt="大连草莓">
+                    <img src="/img/strawberry.png" alt="大连草莓">
                     <div class="product-tag hot">热卖</div>
                 </div>
                 <div class="product-info">
@@ -1317,9 +1317,9 @@
             </div>
 
             <!-- 农产品卡片8 - 大连鲍鱼 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="8">
                 <div class="product-image">
-                    <img src="/static/img/ormer.webp" alt="大连鲍鱼">
+                    <img src="/img/ormer.webp" alt="大连鲍鱼">
                     <div class="product-tag new">新品</div>
                 </div>
                 <div class="product-info">
@@ -1342,9 +1342,9 @@
             </div>
 
             <!-- 农产品卡片9 - 大连油桃 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="9">
                 <div class="product-image">
-                    <img src="/static/img/nectarine.png" alt="大连油桃">
+                    <img src="/img/nectarine.png" alt="大连油桃">
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">大连金州油桃</h3>
@@ -1366,9 +1366,9 @@
             </div>
 
             <!-- 农产品卡片10 - 大连海蛎子 -->
-            <div class="product-card">
+            <div class="product-card" data-product-id="10">
                 <div class="product-image">
-                    <img src="/static/img/oyster.png" alt="大连海蛎子">
+                    <img src="/img/oyster.png" alt="大连海蛎子">
                     <div class="product-tag discount">限时折扣</div>
                 </div>
                 <div class="product-info">
@@ -1627,11 +1627,10 @@
         // 登录模态框控制
         let currentUserType = 'farmer'; // 默认为农户登录
 
-        // 用户中心点击事件 - 直接显示登录模态框
-        //document.getElementById('user-center').addEventListener('click', function(e) {
-            //e.preventDefault();
-            //showLoginModal();
-        //});
+        // 用户中心点击事件
+        document.getElementById('user-center').addEventListener('click', function(e) {
+            window.location.href='/manage-customer.html';
+        });
 
         // 显示登录模态框
         function showLoginModal() {
@@ -1736,66 +1735,66 @@
                 alert(`搜索: ${searchTerm}`);
             });
         });
-    });
-// 假设产品列表已渲染在.product-grid，每个.product-item有data-id="productId"
-// 添加事件监听
-document.querySelectorAll('.product-item').forEach(item => {
-    // 假设每个item有<button class="buy-now">立刻购买</button>和<button class="add-cart">加入购物车</button>
-    // 如果无，需手动添加按钮到HTML模板中
-    item.querySelector('.btn btn-primary').addEventListener('click', async function() {
-        const productId = item.dataset.id;
-        const quantity = 1; // 默认1，可弹窗输入
-        const customerId = localStorage.getItem('userId'); // 从登录页存储
-        const address = prompt('请输入配送地址') || localStorage.getItem('address');
-        if (!customerId) {
-            alert('请先登录');
-            return;
-        }
-        try {
-            const response = await axios.post('http://localhost:8080/order', null, {
-                params: { customerId, productId, quantity, address }
+
+        // 加入购物车功能
+        const addCartButtons = document.querySelectorAll('.add-cart');
+        addCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // 获取产品ID
+                const productCard = this.closest('.product-card');
+                const productId = productCard.getAttribute('data-product-id');
+                
+                // 构造请求数据
+                const cartRequest = {
+                    userId: 'test-user', // 在实际应用中应该从登录状态获取
+                    productId: productId,
+                    quantity: 1
+                };
+                
+                // 发送加入购物车请求
+                axios.post('http://localhost:8066/cart/add', cartRequest)
+                    .then(response => {
+                        if (response.data.code === 200) {
+                            alert('加入购物车成功！');
+                        } else {
+                            alert('加入购物车失败：' + response.data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('加入购物车请求失败：', error);
+                        alert('加入购物车失败，请稍后重试。');
+                    });
             });
-            if (response.data.code === 200) {
-                alert('购买成功，订单ID: ' + response.data.data.id);
-                // 跳转到manage-customer查看订单
-                window.location.href = '/manage-customer.html';
-            } else {
-                alert(response.data.msg);
-            }
-        } catch (e) {
-            alert('购买失败');
+        });
+    });
+
+
+// 页面加载完成后自动获取所有产品并更新产品卡片的data-product-id
+async function updateProductIds() {
+    try {
+        const response = await axios.get('http://localhost:8066/product/all');
+        if (response.data.code === 200) {
+            const products = response.data.data;
+            // 获取所有产品卡片
+            const productCards = document.querySelectorAll('.product-card');
+            
+            // 遍历产品卡片，更新data-product-id为实际存在的产品ID
+            productCards.forEach((card, index) => {
+                if (index < products.length) {
+                    const productId = products[index].id;
+                    card.setAttribute('data-product-id', productId);
+                }
+            });
+            
+            console.log('产品ID已更新为实际数据库中的ID');
         }
-    });
-
-    item.querySelector('.add-cart').addEventListener('click', function() {
-        const productId = item.dataset.id;
-        const quantity = 1; // 默认1
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        cart.push({ productId, quantity });
-        localStorage.setItem('cart', JSON.stringify(cart));
-        alert('已加入购物车');
-        // 数据传输：购物车数据可在manage-customer.html读取
-    });
-});
-
-// 加载产品列表 (如果现有无动态加载，添加)
-async function loadProducts() {
-    const response = await axios.get('http://localhost:8066/product/all');
-    if (response.data.code === 200) {
-        // 渲染到.product-grid (假设现有渲染逻辑，替换或添加)
-        const grid = document.querySelector('.product-grid');
-        grid.innerHTML = response.data.data.map(p => `
-            <div class="product-item" data-id="${p.id}">
-                <img src="${p.imageUrl}" alt="${p.name}">
-                <h3>${p.name}</h3>
-                <p>价格: ¥${p.price}</p>
-                <button class="btn btn-primary">立刻购买</button>
-                <button class="add-cart">加入购物车</button>
-            </div>
-        `).join('');
+    } catch (error) {
+        console.error('获取产品列表失败:', error);
     }
 }
-loadProducts(); // 调用加载
+
+// 页面加载完成后调用
+window.addEventListener('load', updateProductIds);
 </script>
 </body>
 </html>
