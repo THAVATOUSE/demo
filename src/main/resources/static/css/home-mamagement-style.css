@@ -1,4 +1,4 @@
-
+/* ================= 全局样式 ================= */
 * {
     margin: 0;
     padding: 0;
@@ -24,7 +24,7 @@ body {
     overflow-x: hidden;
 }
 
-/* 头部样式 */
+/* ================= 头部样式 ================= */
 header {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
     color: white;
@@ -128,7 +128,7 @@ header {
     background: rgba(255, 255, 255, 0.25);
 }
 
-/* 主内容区域 */
+/* ================= 主内容区域 ================= */
 main {
     height: calc(100vh - 60px);
 }
@@ -164,7 +164,7 @@ main {
     font-weight: 500;
 }
 
-/* 内容区域样式 */
+/* ================= 面板卡片通用样式 ================= */
 .content-area {
     padding: 20px;
     background-color: #f5f7fa;
@@ -245,7 +245,8 @@ main {
     margin: 20px 0;
 }
 
-/* 地图容器 */
+/* ================= 特定组件样式 ================= */
+/* 地图相关 */
 .map-container {
     height: 100%;
     background: #e0f7fa;
@@ -273,98 +274,6 @@ main {
     color: var(--primary-dark);
 }
 
-/* 表格样式 */
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.data-table th {
-    background: #f5f7fa;
-    text-align: left;
-    padding: 12px 15px;
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-.data-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #ebeef5;
-}
-
-.data-table tr:hover {
-    background: #f5f7fa;
-}
-
-.status-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.status-delivering {
-    background: #fff8e1;
-    color: #ff8f00;
-}
-
-.status-idle {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-
-.status-error {
-    background: #ffebee;
-    color: #c62828;
-}
-
-.chart-container {
-    height: 300px;
-    margin: 20px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    border-radius: 4px;
-}
-
-.chart-placeholder {
-    text-align: center;
-    color: var(--text-light);
-}
-
-.chart-placeholder i {
-    font-size: 50px;
-    margin-bottom: 15px;
-    color: #c8e6c9;
-}
-
-.el-row {
-    height: 100%;
-}
-
-#viewDiv {
-    min-height: 500px;
-    background: #e0f7fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    width: 100%;
-    height: 100%;
-}
-
-.map-content {
-    text-align: center;
-    color: var(--primary-dark);
-}
-
-.map-content i {
-    font-size: 60px;
-    margin-bottom: 15px;
-}
-
 #directions-container {
     margin-top: 15px;
     padding: 15px;
@@ -373,6 +282,7 @@ main {
     box-shadow: var(--card-shadow);
 }
 
+/* 无人机卡片 */
 .drone-card {
     background: #fff;
     border-radius: 4px;
@@ -409,6 +319,7 @@ main {
     color: var(--text-light);
 }
 
+/* 电池图标 */
 .battery-level {
     display: inline-block;
     width: 60px;
@@ -436,87 +347,7 @@ main {
     line-height: 20px;
 }
 
-.no-data {
-    text-align: center;
-    padding: 40px 0;
-    color: var(--text-light);
-}
-
-.no-data i {
-    font-size: 50px;
-    margin-bottom: 15px;
-    color: #e0e0e0;
-}
-
-.timeline-container {
-    margin-top: 20px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 4px;
-}
-
-.timeline-item {
-    padding: 10px 0;
-    border-left: 2px solid var(--primary-light);
-    padding-left: 20px;
-    margin-left: 10px;
-    position: relative;
-}
-
-.timeline-item:before {
-    content: '';
-    width: 12px;
-    height: 12px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    position: absolute;
-    left: -7px;
-    top: 15px;
-}
-
-.timeline-time {
-    font-weight: 600;
-    color: var(--primary-dark);
-}
-
-.timeline-content {
-    margin-top: 5px;
-}
-
-.optimization-card {
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: var(--card-shadow);
-    padding: 15px;
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.optimization-info {
-    flex: 1;
-}
-
-.optimization-before, .optimization-after {
-    display: flex;
-    align-items: center;
-}
-
-.optimization-arrow {
-    margin: 0 15px;
-    color: var(--primary-color);
-    font-size: 24px;
-}
-
-.improvement-badge {
-    background: #e8f5e9;
-    color: var(--primary-dark);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
+/* 警告卡片 */
 .alert-card {
     background: #fff8e1;
     border-left: 3px solid #ff9800;
@@ -544,6 +375,17 @@ main {
 
 .critical-alert .alert-icon {
     color: #f44336;
+}
+
+/* 图表 */
+.chart-container {
+    height: 300px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 4px;
 }
 
 .utilization-chart {
@@ -577,4 +419,98 @@ main {
     width: 100%;
     text-align: center;
     font-weight: 600;
+}
+
+/* ================= 禁飞区绘制面板样式 (新增) ================= */
+.draw-control-panel {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    z-index: 900;
+    width: 220px;
+    font-family: "PingFang SC", "Microsoft YaHei";
+}
+
+.draw-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.draw-title i {
+    color: #f44336;
+    margin-right: 8px;
+}
+
+.draw-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.draw-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.btn-start {
+    background-color: #f44336;
+    color: white;
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+}
+
+.btn-start:hover {
+    background-color: #d32f2f;
+}
+
+.btn-drawing {
+    background-color: #ff9800;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+}
+
+.btn-clear {
+    background-color: white;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.btn-clear:hover {
+    background-color: #f5f5f5;
+    border-color: #bbb;
+}
+
+.draw-hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #e65100;
+    background: #fff3e0;
+    padding: 10px;
+    border-radius: 4px;
+    line-height: 1.5;
+    border-left: 3px solid #ff9800;
 }

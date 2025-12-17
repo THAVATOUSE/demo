@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>智农通农产品平台 - 无人机配送管理系统</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type="text/javascript"
+            src="https://api.map.baidu.com/api?v=1.0&type=webgl&ak=ISpoPMZMpwaFeW2K1diXqeGAvvMgB3BY"></script>
+    <!-- 引入Element UI样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="/static/css/home-mamagement-style.css" />
+    <script src="https://webapi.amap.com/maps?v=2.0&key=27fca037994a8f6f951d9dd1dc56a8e3"></script>
+
+    <style>
+        /* 补充的 CSS 样式 */
+        .draw-control-panel {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            z-index: 900; /* 略低于某些弹窗 */
+            width: 220px;
+            font-family: "PingFang SC", "Microsoft YaHei";
+        }
+
+        .draw-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .draw-title i {
+            color: #f44336;
+            margin-right: 8px;
+        }
+
+        .draw-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .draw-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .btn-start {
+            background-color: #f44336;
+            color: white;
+            box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-start:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-drawing {
+            background-color: #ff9800;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+        }
+
+        .btn-clear {
+            background-color: white;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn-clear:hover {
+            background-color: #f5f5f5;
+            border-color: #bbb;
+        }
+
+        .draw-hint {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #e65100;
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 4px;
+            line-height: 1.5;
+            border-left: 3px solid #ff9800;
+        }
+    </style>
+
+</head>
+
+<body>
+<div id="app">
+    <header>
+        <div class="header-container">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h1 class="platform-name">智农通农产品交易平台</h1>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" placeholder="搜索订单、无人机或农产品...">
+                    <button><i class="fas fa-search"></i> 搜索</button>
+                </div>
+            </div>
+
+            <div class="user-actions">
+                <el-button icon="el-icon-bell" circle></el-button>
+                <el-button icon="el-icon-setting" circle></el-button>
+                <el-button icon="el-icon-user">管理员</el-button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <el-container style="height: 100%;">
+            <!-- 侧边栏-功能模块 -->
+            <el-aside width="280px">
+                <el-menu :default-active="activeIndex" :default-openeds="['1', '2', '3', '4', '5']"
+                         @select="handleMenuSelect"
+                         @open="handleOpen" @close="handleClose" active-text-color="#2e7d32">
+                    <el-submenu index="1">
+                        <template slot="title">
+                            <i class="fas fa-tasks"></i>
+                            <span><b>订单接收与分配</b></span>
+                        </template>
+                        <el-menu-item index="1-1">
+                            <el-popover placement="right" width="400" trigger="click">
+                                <div class="section-title">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    接受消费者订单
+                                </div>
+                                <div class="card-grid">
+                                    <div class="stat-card">
+                                        <div class="stat-card-header">
+                                            <i class="fas fa-shopping-cart"></i>
+                                            <span>今日订单</span>
+                                        </div>
+                                        <div class="stat-card-content">
+                                            <div class="stat-value">142</div>
+                                            <div class="stat-label">较昨日 +12%</div>
+                                            <el-progress :percentage="65" color="#4caf50"></el-progress>
+                                        </div>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div class="stat-card-header">
+                                            <i class="fas fa-clock"></i>
+                                            <span>待处理订单</span>
+                                        </div>
+                                        <div class="stat-card-content">
+                                            <div class="stat-value">28</div>
+                                            <div class="stat-label">等待分配无人机</div>
+                                            <el-progress :percentage="85" color="#4caf50"></el-progress>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="section-title">
+                                    <i class="fas fa-list"></i>
+                                    最新订单
+                                </div>
+                                <el-table :data="gridData1">
+                                    <el-table-column width="150" property="id" label="订单号"></el-table-column>
+                                    <el-table-column width="100" property="name" label="姓名"></el-table-column>
+                                    <el-table-column width="150" property="product" label="产品"></el-table-column>
+                                    <el-table-column width="150" property="amount" label="价格"></el-table-column>
+                                    <el-table-column width="300" property="address" label="地址"></el-table-column>
+                                    <el-table-column width="150" property="status" label="配送状态"></el-table-column>
+                                </el-table>
+                                <el-button slot="reference"><i class="fas fa-shopping-cart"></i>接受消费者订单</el-button>
+                            </el-popover>
+                        </el-menu-item>
+
+                        <el-menu-item index="1-2">
+
+                            <el-popover placement="right" width="400" trigger="click">
+                                <div class="card-grid">
+                                    <div class="stat-card">
+                                        <div class="stat-card-header">
+                                            <i class="fas fa-helicopter"></i>
+                                            <span>可用无人机</span>
+                                        </div>
+                                        <div class="stat-card-content">
+                                            <div class="stat-value">8</div>
+                                            <div class="stat-label">空闲/总数: 8/12</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stat-card">
+                                        <div class="stat-card-header">
+                                            <i class="fas fa-box"></i>
+                                            <span>待分配订单</span>
+                                        </div>
+                                        <div class="stat-card-content">
+                                            <div class="stat-value">28</div>
+                                            <div class="stat-label">等待分配</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="section-title">
+                                    <i class="fas fa-tasks"></i>
+                                    订单匹配建议
+                                </div>
+                                <div class="drone-card">
+                                    <div class="drone-header">
+                                        <div class="drone-title">订单 #ORD-20230618002</div>
+                                        <div class="drone-status">待分配</div>
+                                    </div>
+                                    <div class="drone-content">
+                                        <div>李女士 - 新鲜水果礼盒</div>
+                                        <div>建议无人机: Drone-03</div>
+                                    </div>
+                                </div>
+                                <div class="drone-card">
+                                    <div class="drone-header">
+                                        <div class="drone-title">订单 #ORD-20230618004</div>
+                                        <div class="drone-status">待分配</div>
+                                    </div>
+                                    <div class="drone-content">
+                                        <div>陈女士 - 有机大米10kg</div>
+                                        <div>建议无人机: Drone-07</div>
+                                    </div>
+                                </div>
+
+                                <el-button slot="reference"><i class="fas fa-helicopter"></i>匹配至无人机</el-button>
+                            </el-popover>
+
+                        </el-menu-item>
+                    </el-submenu>
+
+                    <el-submenu index="2">
+                        <template slot="title">
+                            <i class="fas fa-route"></i>
+                            <span><b>路径规划与优化</b></span>
+                        </template>
+                        <el-menu-item index="2-1-1">
+
+                            <el-popover placement="right" width="400" trigger="click">
+                                <div class="content-card">
+                                    <div class="section-title">
+                                        <i class="fas fa-road"></i>
+                                        最短距离路径规划
+                                    </div>
+
+                                    <div class="card-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-route"></i>
+                                                <span>当前路径</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">18.6 km</div>
+                                                <div class="stat-label">预计时间: 42分钟</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-bolt"></i>
+                                                <span>节省距离</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">3.2 km</div>
+                                                <div class="stat-label">相比普通路线</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="section-title">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                        路径详情
+                                    </div>
+
+                                    <div id="directions-container">
+                                        <h3>配送路线规划</h3>
+                                        <p>起点: 农产品仓库</p>
+                                        <p>终点: 科技园区A座</p>
+                                        <p>途经点: 花园小区、创业大厦</p>
+                                        <p>总距离: 18.6公里</p>
+                                        <p>预计时间: 42分钟</p>
+                                    </div>
+                                </div>
+                                <el-button slot="reference"><i class="fas fa-road"></i>最短距离</el-button>
+                            </el-popover>
+
+                        </el-menu-item>
+                        <el-menu-item index="2-1-2">
+
+                            <el-popover placement="right" width="400" trigger="click">
+                                <div class="content-card">
+                                    <div class="section-title">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        最低成本路径规划
+                                    </div>
+
+                                    <div class="card-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-money-bill-wave"></i>
+                                                <span>预计成本</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">¥86.50</div>
+                                                <div class="stat-label">电力+维护成本</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-percentage"></i>
+                                                <span>成本节省</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">23%</div>
+                                                <div class="stat-label">相比普通路线</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <el-button slot="reference"><i class="fas fa-dollar-sign"></i>最低成本</el-button>
+                            </el-popover>
+
+                        </el-menu-item>
+                    </el-submenu>
+
+
+
+                    <el-submenu index="4">
+                        <template slot="title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span><b>异常预警与处理</b></span>
+                        </template>
+                        <el-menu-item index="4-1">
+
+                            <el-popover placement="right" width="400" trigger="click">
+
+                                <div class="content-card">
+                                    <div class="section-title">
+                                        <i class="fas fa-wrench"></i>
+                                        无人机故障监测
+                                    </div>
+
+                                    <div class="alert-card">
+                                        <div class="alert-header">
+                                            <i class="fas fa-exclamation-circle alert-icon"></i>
+                                            <strong>当前故障无人机: 0台</strong>
+                                        </div>
+                                        <p>所有无人机运行状态良好，无故障报告</p>
+                                    </div>
+
+                                    <div class="section-title">
+                                        <i class="fas fa-history"></i>
+                                        历史故障记录
+                                    </div>
+
+                                    <el-table :data="faultHistory" style="width: 100%">
+                                        <el-table-column prop="date" label="日期" width="120"></el-table-column>
+                                        <el-table-column prop="drone" label="无人机ID" width="120"></el-table-column>
+                                        <el-table-column prop="issue" label="故障类型"></el-table-column>
+                                        <el-table-column prop="duration" label="处理时间" width="120"></el-table-column>
+                                        <el-table-column label="状态" width="100">
+                                            <template>
+                                                <el-tag type="success">已修复</el-tag>
+                                            </template>
+                                        </el-table-column>
+                                    </el-table>
+                                </div>
+                                <el-button slot="reference"><i class="fas fa-wrench"></i>监测无人机故障</el-button>
+                            </el-popover>
+                        </el-menu-item>
+
+                        <el-menu-item index="4-3">
+
+                            <el-popover placement="right" width="400" trigger="click">
+                                <div class="content-card">
+                                    <div class="section-title">
+                                        <i class="fas fa-history"></i>
+                                        备用方案管理
+                                    </div>
+
+                                    <div class="alert-card">
+                                        <div class="alert-header">
+                                            <i class="fas fa-info-circle alert-icon"></i>
+                                            <strong>当前备用无人机: 3台</strong>
+                                        </div>
+                                        <p>备用无人机已准备就绪，随时可投入配送</p>
+                                    </div>
+
+                                    <div class="section-title">
+                                        <i class="fas fa-helicopter"></i>
+                                        备用无人机列表
+                                    </div>
+
+                                    <el-table :data="backupDrones" style="width: 100%">
+                                        <el-table-column prop="id" label="无人机ID" width="120"></el-table-column>
+                                        <el-table-column prop="type" label="型号" width="120"></el-table-column>
+                                        <el-table-column prop="capacity" label="载重能力" width="120"></el-table-column>
+                                        <el-table-column prop="battery" label="电量">
+                                            <template slot-scope="scope">
+                                                <el-progress :percentage="scope.row.battery"
+                                                             :color="batteryColor(scope.row.battery)"></el-progress>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="状态" width="100">
+                                            <template>
+                                                <el-tag type="success">待命</el-tag>
+                                            </template>
+                                        </el-table-column>
+                                    </el-table>
+
+                                    <div class="section-title" style="margin-top:30px;">
+                                        <i class="fas fa-lightbulb"></i>
+                                        应急预案
+                                    </div>
+
+                                    <div class="drone-card">
+                                        <div class="drone-header">
+                                            <div class="drone-title">天气突变应急方案</div>
+                                        </div>
+                                        <div class="drone-content">
+                                            <div>启用备用路线 | 降低飞行高度 | 缩短单次配送距离</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="drone-card">
+                                        <div class="drone-header">
+                                            <div class="drone-title">无人机故障应急方案</div>
+                                        </div>
+                                        <div class="drone-content">
+                                            <div>启动备用无人机 | 重新分配任务 | 通知维护团队</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <el-button slot="reference"><i class="fas fa-history"></i>备用方案</el-button>
+                            </el-popover>
+
+                        </el-menu-item>
+                    </el-submenu>
+
+                    <el-submenu index="5">
+                        <template slot="title">
+                            <i class="fas fa-chart-bar"></i>
+                            <span><b>数据分析与报表生成</b></span>
+                        </template>
+                        <el-menu-item index="5-1">
+
+                            <el-popover placement="right" width="400" trigger="click">
+                                <div class="content-card">
+                                    <div class="section-title">
+                                        <i class="fas fa-percentage"></i>
+                                        订单完成率分析
+                                    </div>
+
+                                    <div class="card-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-check-circle"></i>
+                                                <span>总完成率</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">98.2%</div>
+                                                <div class="stat-label">过去30天</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-tachometer-alt"></i>
+                                                <span>今日完成率</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">96.5%</div>
+                                                <div class="stat-label">已完成/总数: 137/142</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <el-button slot="reference"><i class="fas fa-percentage"></i>订单完成率</el-button>
+                            </el-popover>
+
+                        </el-menu-item>
+
+                        <el-menu-item index="5-3">
+
+                            <el-popover placement="right" width="400" trigger="click">
+                                <div class="content-card">
+                                    <div class="section-title">
+                                        <i class="fas fa-chart-line"></i>
+                                        无人机利用率分析
+                                    </div>
+
+                                    <div class="card-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-helicopter"></i>
+                                                <span>平均利用率</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">78.4%</div>
+                                                <div class="stat-label">过去7天</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fas fa-calendar-day"></i>
+                                                <span>今日利用率</span>
+                                            </div>
+                                            <div class="stat-card-content">
+                                                <div class="stat-value">82.6%</div>
+                                                <div class="stat-label">高于平均值</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="section-title">
+                                        <i class="fas fa-chart-bar"></i>
+                                        各无人机利用率
+                                    </div>
+
+                                    <div class="chart-container">
+                                        <div class="utilization-chart">
+                                            <div class="chart-bar" :style="{ height: '85%' }">
+                                                <div class="chart-value">85%</div>
+                                                <div class="chart-label">Drone-01</div>
+                                            </div>
+                                            <div class="chart-bar" :style="{ height: '72%' }">
+                                                <div class="chart-value">72%</div>
+                                                <div class="chart-label">Drone-02</div>
+                                            </div>
+                                            <div class="chart-bar" :style="{ height: '91%' }">
+                                                <div class="chart-value">91%</div>
+                                                <div class="chart-label">Drone-03</div>
+                                            </div>
+                                            <div class="chart-bar" :style="{ height: '65%' }">
+                                                <div class="chart-value">65%</div>
+                                                <div class="chart-label">Drone-04</div>
+                                            </div>
+                                            <div class="chart-bar" :style="{ height: '78%' }">
+                                                <div class="chart-value">78%</div>
+                                                <div class="chart-label">Drone-05</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <el-button slot="reference"><i class="fas fa-chart-line"></i>无人机利用率</el-button>
+                            </el-popover>
+
+                        </el-menu-item>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
+
+
+            <el-main style="padding:0;position:relative;">
+                <div id="container" style="width:100%; height:100%;"></div>
+
+                <div class="draw-control-panel">
+                    <div class="draw-title">
+                        <i class="fas fa-ban"></i>
+                        <span>禁飞区管理</span>
+                    </div>
+
+                    <div class="draw-btn-group">
+                        <button class="draw-btn" :class="isDrawing ? 'btn-drawing' : 'btn-start'" @click="toggleDrawMode">
+                            <i :class="isDrawing ? 'fas fa-pen' : 'fas fa-plus'"></i>
+                            {{ isDrawing ? '正在绘制中...' : '新建禁飞区' }}
+                        </button>
+
+                        <button class="draw-btn btn-clear" @click="clearAllZones">
+                            <i class="fas fa-trash-alt"></i>
+                            清除所有区域
+                        </button>
+                    </div>
+
+                    <div v-if="isDrawing" class="draw-hint">
+                        <strong>操作指南:</strong><br/>
+                        1. 单击地图添加顶点<br/>
+                        2. 双击地图完成闭合<br/>
+                        3. 右键可取消当前点
+                    </div>
+                </div>
+            </el-main>
+        </el-container>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                activeIndex: '1-1',
+                activePanel: '1-1',
+                baiduMap: null, // 添加地图实例引用
+                // 禁飞区管理相关数据
+                isDrawing: false,
+                currentDrawing: [],  // 当前绘制的点
+                drawingPolyline: null,  // 绘制中的折线
+                drawingPolygon: null,   // 绘制中的多边形预览
+                drawnOverlays: [],      // 已完成的多边形覆盖物数组
+                nextZoneId: 1,
+                gridData1: [
+                    { id: '#ORD-20230618001', customer: '张先生', product: '有机蔬菜套餐', amount: '¥128.00', address: '科技园区A座12楼', status: '配送中'},
+                    { id: '#ORD-20230618002', customer: '李女士', product: '新鲜水果礼盒', amount: '¥98.00', address: '花园小区3栋502', status: '待分配'},
+                    { id: '#ORD-20230618003', customer: '王先生', product: '土鸡蛋x2盒', amount: '¥56.00', address: '创业大厦B座8楼', status: '配送中'},
+                    { id: '#ORD-20230618004', customer: '陈女士', product: '有机大米10kg', amount: '¥168.00', address: '阳光小区7栋1203', status: '待分配'}
+                ],
+                faultHistory: [
+                    { date: '2023-06-15', drone: 'Drone-07', issue: '电池接触不良', duration: '2小时' },
+                    { date: '2023-06-10', drone: 'Drone-03', issue: 'GPS信号丢失', duration: '1.5小时' },
+                    { date: '2023-06-05', drone: 'Drone-11', issue: '螺旋桨损坏', duration: '4小时' }
+                ],
+                backupDrones: [
+                    { id: 'Drone-B01', type: 'AG-X3', capacity: '5kg', battery: 100 },
+                    { id: 'Drone-B02', type: 'AG-X2', capacity: '3kg', battery: 95 },
+                    { id: 'Drone-B03', type: 'AG-X3', capacity: '5kg', battery: 100 }
+                ],
+
+                droneStations: [
+                    { id: 'station1', name: '主调度中心', point: { lng: 121.663611, lat: 39.061667} },
+                    { id: 'station2', name: '北区调度点', point: { lng: 121.755278, lat: 39.172778 } },
+                    { id: 'station3', name: '西区调度点', point: { lng: 121.170000, lat: 38.905722 } },
+                    { id: 'station4', name: '南区调度点', point: { lng: 121.293944, lat: 38.832244 } }
+                ],
+                droneIcons: {},  // 存储无人机图标
+                currentDronePath: [],  // 当前无人机飞行路径
+                dronePosition: null,   // 无人机当前位置
+                isDroneMoving: false,  // 无人机是否正在移动
+                animationInterval: null, // 动画定时器
+                currentDroneIndex: 0   // 当前使用的无人机索引
+
+            };
+        },
+        mounted() {
+            this.initMap();
+            // 监听窗口大小变化，重新初始化地图或调整大小
+            window.addEventListener('resize', this.onResize);
+
+            // 添加键盘事件监听
+            document.addEventListener('keydown', this.handleKeydown);
+        },
+        beforeDestroy() {
+            // 组件销毁前移除事件监听
+            window.removeEventListener('resize', this.onResize);
+            document.removeEventListener('keydown', this.handleKeydown);
+
+            // 移除地图resize监听
+            if (this.baiduMap) {
+                // 清理地图事件监听
+                if (this.mapClickListener) {
+                    this.baiduMap.removeEventListener('click', this.mapClickListener);
+                }
+                if (this.mapDblClickListener) {
+                    this.baiduMap.removeEventListener('dblclick', this.mapDblClickListener);
+                }
+            }
+
+        },
+        methods: {
+            handleMenuSelect(index) {
+                if (this.activePanel === index) {
+                    this.activePanel = null;
+                } else {
+                    this.activePanel = index;
+                }
+            },
+            closePanel() {
+                this.activePanel = null;
+            },
+            onResize() {
+                this.initMap();
+            },
+
+            handleKeydown(e) {
+                if (e.key === 'Escape' && this.isDrawing) {
+                    this.cancelDrawing();
+                }
+            },
+
+            initMap() {
+                this.$nextTick(() => {
+                    const container = document.getElementById('container');
+                    if (!container) {
+                        console.error('地图容器不存在');
+                        return;
+                    }
+
+                    const map = new BMapGL.Map("container");
+                    const point = new BMapGL.Point(121.620000, 38.920000);
+                    map.centerAndZoom(point, 12);
+                    map.enableScrollWheelZoom(true);
+
+                    // 设置地图样式
+                    map.setMapStyleV2({ styleId: 'c43d47d1a166090a6b5a05ff15a9c2c3' });
+
+                    // 1. 初始化原有的标记和禁飞区
+                    this.initBasicOverlays(map);
+
+                    // 2. 初始化绘制事件监听
+                    this.initDrawEvents(map);
+
+                    this.baiduMap = map;
+                });
+            },
+
+            // 将原有的初始化逻辑封装，避免 initMap 太长
+            initBasicOverlays(map) {
+                // 原有的固定禁飞区
+                const noFlyZonePoints = [
+                    new BMapGL.Point(121.30, 39.04),
+                    new BMapGL.Point(121.75, 39.04),
+                    new BMapGL.Point(121.75, 38.90),
+                    new BMapGL.Point(121.30, 38.90)
+                ];
+                const noFlyZone = new BMapGL.Polygon(noFlyZonePoints, {
+                    strokeColor: "#cc0000",
+                    strokeWeight: 2,
+                    strokeOpacity: 0.8,
+                    fillColor: "#ff0000",
+                    fillOpacity: 0.25
+                });
+                map.addOverlay(noFlyZone);
+                this.drawnOverlays.push(noFlyZone); // 加入管理列表
+
+                // 添加调度点
+                this.droneStations.forEach(station => {
+                    const p = new BMapGL.Point(station.point.lng, station.point.lat);
+                    const marker = new BMapGL.Marker(p);
+                    const label = new BMapGL.Label(station.name, {
+                        position: p,
+                        offset: new BMapGL.Size(10, -20)
+                    });
+                    label.setStyle({
+                        color: "#2e7d32",
+                        border: "1px solid #4caf50",
+                        padding: "2px",
+                        borderRadius: "2px"
+                    });
+                    map.addOverlay(marker);
+                    map.addOverlay(label);
+                });
+            },
+
+            // ================= 核心绘制逻辑 =================
+
+            toggleDrawMode() {
+                this.isDrawing = !this.isDrawing;
+
+                if (this.isDrawing) {
+                    // 开始绘制
+                    this.baiduMap.setDefaultCursor("crosshair"); // 鼠标变十字准星
+                    this.baiduMap.disableDoubleClickZoom();      // 禁用双击缩放，用于双击结束绘制
+                    this.drawingPoints = [];
+                    this.$message.success("进入绘制模式，请在地图上点击添加点，双击结束");
+                } else {
+                    // 取消绘制
+                    this.resetDrawState();
+                }
+            },
+
+            initDrawEvents(map) {
+                const self = this;
+
+                // 1. 点击地图：添加点
+                map.addEventListener('click', function(e) {
+                    if (!self.isDrawing) return;
+
+                    const point = e.latlng;
+                    self.drawingPoints.push(point);
+
+                    // 如果是第一个点，不画线
+                    if (self.drawingPoints.length === 1) {
+                        // 可以加个小圆点提示起点
+                        return;
+                    }
+
+                    // 绘制已确认的线段
+                    if (self.tempPolyline) {
+                        map.removeOverlay(self.tempPolyline);
+                    }
+                    self.tempPolyline = new BMapGL.Polyline(self.drawingPoints, {
+                        strokeColor: "#ff0000",
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8
+                    });
+                    map.addOverlay(self.tempPolyline);
+                });
+
+                // 2. 鼠标移动：绘制橡皮筋线（即鼠标位置到最后一个点的虚线）
+                map.addEventListener('mousemove', function(e) {
+                    if (!self.isDrawing || self.drawingPoints.length === 0) return;
+
+                    const lastPoint = self.drawingPoints[self.drawingPoints.length - 1];
+                    const currentPoint = e.latlng;
+
+                    if (self.moveLine) {
+                        map.removeOverlay(self.moveLine);
+                    }
+
+                    self.moveLine = new BMapGL.Polyline([lastPoint, currentPoint], {
+                        strokeColor: "#ff0000",
+                        strokeWeight: 2,
+                        strokeStyle: "dashed" // 虚线效果
+                    });
+                    map.addOverlay(self.moveLine);
+                });
+
+                // 3. 双击地图：完成绘制
+                map.addEventListener('dblclick', function(e) {
+                    if (!self.isDrawing) return;
+
+                    // 至少需要3个点才能构成多边形（双击点算一个）
+                    if (self.drawingPoints.length < 2) {
+                        self.$message.warning("至少需要3个点才能构成区域");
+                        return;
+                    }
+
+                    // 将双击的点加入（如果双击的逻辑是最后一点）
+                    const endPoint = e.latlng;
+                    self.drawingPoints.push(endPoint);
+
+                    // 创建最终的多边形
+                    const polygon = new BMapGL.Polygon(self.drawingPoints, {
+                        strokeColor: "#cc0000",    // 深红色边框
+                        strokeWeight: 2,
+                        strokeOpacity: 0.9,
+                        fillColor: "#ff0000",      // 红色填充
+                        fillOpacity: 0.3           // 半透明
+                    });
+
+                    map.addOverlay(polygon);
+                    self.drawnOverlays.push(polygon);
+
+                    // 添加点击事件显示信息
+                    polygon.addEventListener('click', () => {
+                        const info = new BMapGL.InfoWindow(`
+                            <div style="color:#cc0000">
+                                <strong>临时禁飞区</strong><br>
+                                <span>禁止所有无人机飞入</span>
+                            </div>
+                        `);
+                        map.openInfoWindow(info, endPoint);
+                    });
+
+                    self.$message.success("禁飞区绘制完成！");
+                    self.resetDrawState(); // 退出绘制模式
+                });
+
+                // 4. 右键：取消上一步（可选优化）
+                map.addEventListener('rightclick', function() {
+                    if(self.isDrawing && self.drawingPoints.length > 0) {
+                        self.drawingPoints.pop();
+                        // 重新绘制已有线段
+                        if (self.tempPolyline) map.removeOverlay(self.tempPolyline);
+                        if (self.drawingPoints.length > 1) {
+                            self.tempPolyline = new BMapGL.Polyline(self.drawingPoints, {
+                                strokeColor: "#ff0000", strokeWeight: 2
+                            });
+                            map.addOverlay(self.tempPolyline);
+                        }
+                    }
+                });
+            },
+
+            resetDrawState() {
+                this.isDrawing = false;
+                this.drawingPoints = [];
+                this.baiduMap.setDefaultCursor("default");
+                this.baiduMap.enableDoubleClickZoom(); // 恢复双击缩放
+
+                // 清除临时线
+                if (this.tempPolyline) this.baiduMap.removeOverlay(this.tempPolyline);
+                if (this.moveLine) this.baiduMap.removeOverlay(this.moveLine);
+                this.tempPolyline = null;
+                this.moveLine = null;
+            },
+
+            clearAllZones() {
+                this.$confirm('确定要清除所有禁飞区吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.drawnOverlays.forEach(overlay => {
+                        this.baiduMap.removeOverlay(overlay);
+                    });
+                    this.drawnOverlays = [];
+                    this.$message({
+                        type: 'success',
+                        message: '清除成功!'
+                    });
+                }).catch(() => {});
+            },
+
+
+            // 计算距离最近的调度点
+            findNearestStation(point) {
+                let nearestStation = null;
+                let minDistance = Infinity;
+
+                this.droneStations.forEach(station => {
+                    const stationPoint = new BMapGL.Point(station.point.lng, station.point.lat);
+                    const distance = this.baiduMap.getDistance(stationPoint, point);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestStation = station;
+                    }
+                });
+
+                return nearestStation;
+            },
+
+            // 计算两点之间的路线点
+            calculatePathPoints(startPoint, endPoint, steps = 50) {
+                const pathPoints = [];
+                const lngStep = (endPoint.lng - startPoint.lng) / steps;
+                const latStep = (endPoint.lat - startPoint.lat) / steps;
+
+                for (let i = 0; i <= steps; i++) {
+                    pathPoints.push(new BMapGL.Point(
+                        startPoint.lng + lngStep * i,
+                        startPoint.lat + latStep * i
+                    ));
+                }
+
+                return pathPoints;
+            },
+
+            // 计算两点之间的角度（用于无人机方向）
+            calculateAngle(point1, point2) {
+                const dx = point2.lng - point1.lng;
+                const dy = point2.lat - point1.lat;
+                let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                // 调整角度，使0度指向北方
+                angle = 90 - angle;
+                return angle;
+            },
+
+            // 更新无人机图标旋转
+            updateDroneRotation(marker, angle) {
+                const rotatedIcon = new BMapGL.Icon(
+                    "data:image/svg+xml;charset=utf-8," +
+                    encodeURIComponent(`
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" transform="rotate(${angle} 12 12)" fill="#2196f3">
+                            <path d="M12 3L2 12h3v8h14v-8h3L12 3zm5 15h-2v-2H9v2H7v-3L5 17v2h2v2h2v-2h6v2h2v-2h2v-2l-2-2v3h-2zm-3-5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+                        </svg>
+                    `),
+                    new BMapGL.Size(32, 32)
+                );
+                marker.setIcon(rotatedIcon);
+            },
+
+            // 移动无人机
+            moveDroneAlongPath() {
+                if (!this.currentDronePath || this.currentDronePath.length === 0) return;
+                let currentIndex = 0;
+                const droneMarker = this.droneIcons[this.currentStation.id];
+
+                // 检查路径段信息是否已定义
+                if (!this.pathSegments) {
+                    this.pathSegments = {
+                        toStart: Math.floor(this.currentDronePath.length / 3),
+                        toEnd: Math.floor(this.currentDronePath.length * 2 / 3)
+                    };
+                }
+
+                // 保存this引用
+                const self = this;
+
+                // 清除之前的动画
+                if (this.animationInterval) {
+                    clearInterval(this.animationInterval);
+                }
+                this.isDroneMoving = true;
+
+                // 显示飞行状态面板
+                const statusPanel = document.querySelector('#flightStatus');
+                const statusText = document.querySelector('#statusText');
+                const positionText = document.querySelector('#positionText');
+                const currentHeight = document.querySelector('#currentHeight');
+                if (statusPanel) statusPanel.style.display = 'block';
+
+                // 更新飞行按钮状态
+                const flightBtn = document.querySelector('#flightBtn');
+                if (flightBtn) {
+                    flightBtn.innerHTML = '⏸ 暂停配送';
+                    flightBtn.style.background = '#ff9800';
+                }
+
+                // 每100ms移动一次
+                this.animationInterval = setInterval(() => {
+                    if (currentIndex < self.currentDronePath.length) {
+                        const point = self.currentDronePath[currentIndex];
+                        droneMarker.setPosition(point);
+
+                        // 计算并设置无人机方向
+                        if (currentIndex > 0) {
+                            const prevPoint = self.currentDronePath[currentIndex - 1];
+                            const angle = self.calculateAngle(prevPoint, point);
+                            self.updateDroneRotation(droneMarker, angle);
+                        }
+
+                        // 更新状态显示
+                        if (statusText) {
+                            if (currentIndex < self.pathSegments.toStart) {
+                                statusText.textContent = '前往起点';
+                            } else if (currentIndex < self.pathSegments.toEnd) {
+                                statusText.textContent = '配送中';
+                            } else {
+                                statusText.textContent = '返回调度点';
+                            }
+                        }
+
+                        if (positionText) {
+                            positionText.textContent = `经度: ${point.lng.toFixed(5)}, 纬度: ${point.lat.toFixed(5)}`;
+                        }
+
+                        if (currentHeight) {
+                            const heightSlider = document.querySelector('#flightHeight');
+                            currentHeight.textContent = heightSlider ? heightSlider.value : '50';
+                        }
+
+                        currentIndex++;
+                    } else {
+                        // 路径完成处理
+                        clearInterval(self.animationInterval);
+                        self.isDroneMoving = false;
+
+                        if (statusText) {
+                            statusText.textContent = '任务完成';
+                        }
+
+                        if (flightBtn) {
+                            flightBtn.innerHTML = '✈️ 重新开始';
+                            flightBtn.style.background = '#4CAF50';
+                        }
+
+                        // 2秒后重置状态
+                        setTimeout(() => {
+                            if (statusPanel) statusPanel.style.display = 'none';
+                        }, 2000);
+                    }
+                    const progressText = document.querySelector('#progressText');
+                    if (progressText) {
+                        const progress = Math.round((currentIndex / self.currentDronePath.length) * 100);
+                        progressText.textContent = `${progress}%`;
+                    }
+                }, 100);
+            }
+        }
+    });
+
+
+</script>
+
+
+</body>
+
+</html>
