@@ -13,102 +13,68 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 假设CSS文件在本地或通过服务器提供，为了确保预览效果，部分关键样式已内联 -->
     <link rel="stylesheet" href="/static/css/home-mamagement-style.css" />
-    <script src="https://webapi.amap.com/maps?v=2.0&key=27fca037994a8f6f951d9dd1dc56a8e3"></script>
 
     <style>
-        /* 补充的 CSS 样式 */
-        .draw-control-panel {
+        /* 新增：地图图例样式 */
+        .map-legend {
             position: absolute;
-            top: 80px;
+            bottom: 30px;
             right: 20px;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-            z-index: 900; /* 略低于某些弹窗 */
-            width: 220px;
-            font-family: "PingFang SC", "Microsoft YaHei";
+            z-index: 999;
+            font-family: 'PingFang SC', 'Microsoft YaHei';
+            width: 160px;
         }
 
-        .draw-title {
-            font-size: 16px;
-            font-weight: bold;
+        .map-legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
             color: #333;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
             border-bottom: 1px solid #eee;
             padding-bottom: 8px;
         }
 
-        .draw-title i {
-            color: #f44336;
-            margin-right: 8px;
-        }
-
-        .draw-btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .draw-btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+        .legend-item {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #666;
         }
 
-        .btn-start {
-            background-color: #f44336;
-            color: white;
-            box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+        .legend-item:last-child {
+            margin-bottom: 0;
         }
 
-        .btn-start:hover {
-            background-color: #d32f2f;
+        .color-box {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
         }
 
-        .btn-drawing {
-            background-color: #ff9800;
-            color: white;
-            animation: pulse 2s infinite;
+        /* 修复 Element UI 图标显示问题 (如果 CDN 加载缓慢) */
+        [class^="el-icon-"], [class*=" el-icon-"] {
+            font-family: element-icons !important;
         }
 
+        /* 确保地图容器占满 */
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 动画关键帧 - 保持原有样式 */
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
             70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
-        }
-
-        .btn-clear {
-            background-color: white;
-            color: #666;
-            border: 1px solid #ddd;
-        }
-
-        .btn-clear:hover {
-            background-color: #f5f5f5;
-            border-color: #bbb;
-        }
-
-        .draw-hint {
-            margin-top: 12px;
-            font-size: 12px;
-            color: #e65100;
-            background: #fff3e0;
-            padding: 10px;
-            border-radius: 4px;
-            line-height: 1.5;
-            border-left: 3px solid #ff9800;
         }
     </style>
 
@@ -145,8 +111,7 @@
             <!-- 侧边栏-功能模块 -->
             <el-aside width="280px">
                 <el-menu :default-active="activeIndex" :default-openeds="['1', '2', '3', '4', '5']"
-                         @select="handleMenuSelect"
-                         @open="handleOpen" @close="handleClose" active-text-color="#2e7d32">
+                         @select="handleMenuSelect" @open="handleOpen" @close="handleClose" active-text-color="#2e7d32">
                     <el-submenu index="1">
                         <template slot="title">
                             <i class="fas fa-tasks"></i>
@@ -585,32 +550,8 @@
 
 
             <el-main style="padding:0;position:relative;">
-                <div id="container" style="width:100%; height:100%;"></div>
+                <div id="container" style="width:100%; height:100%;">
 
-                <div class="draw-control-panel">
-                    <div class="draw-title">
-                        <i class="fas fa-ban"></i>
-                        <span>禁飞区管理</span>
-                    </div>
-
-                    <div class="draw-btn-group">
-                        <button class="draw-btn" :class="isDrawing ? 'btn-drawing' : 'btn-start'" @click="toggleDrawMode">
-                            <i :class="isDrawing ? 'fas fa-pen' : 'fas fa-plus'"></i>
-                            {{ isDrawing ? '正在绘制中...' : '新建禁飞区' }}
-                        </button>
-
-                        <button class="draw-btn btn-clear" @click="clearAllZones">
-                            <i class="fas fa-trash-alt"></i>
-                            清除所有区域
-                        </button>
-                    </div>
-
-                    <div v-if="isDrawing" class="draw-hint">
-                        <strong>操作指南:</strong><br/>
-                        1. 单击地图添加顶点<br/>
-                        2. 双击地图完成闭合<br/>
-                        3. 右键可取消当前点
-                    </div>
                 </div>
             </el-main>
         </el-container>
@@ -628,13 +569,6 @@
                 activeIndex: '1-1',
                 activePanel: '1-1',
                 baiduMap: null, // 添加地图实例引用
-                // 禁飞区管理相关数据
-                isDrawing: false,
-                currentDrawing: [],  // 当前绘制的点
-                drawingPolyline: null,  // 绘制中的折线
-                drawingPolygon: null,   // 绘制中的多边形预览
-                drawnOverlays: [],      // 已完成的多边形覆盖物数组
-                nextZoneId: 1,
                 gridData1: [
                     { id: '#ORD-20230618001', customer: '张先生', product: '有机蔬菜套餐', amount: '¥128.00', address: '科技园区A座12楼', status: '配送中'},
                     { id: '#ORD-20230618002', customer: '李女士', product: '新鲜水果礼盒', amount: '¥98.00', address: '花园小区3栋502', status: '待分配'},
@@ -655,8 +589,21 @@
                 droneStations: [
                     { id: 'station1', name: '主调度中心', point: { lng: 121.663611, lat: 39.061667} },
                     { id: 'station2', name: '北区调度点', point: { lng: 121.755278, lat: 39.172778 } },
-                    { id: 'station3', name: '西区调度点', point: { lng: 121.170000, lat: 38.905722 } },
-                    { id: 'station4', name: '南区调度点', point: { lng: 121.293944, lat: 38.832244 } }
+                    { id: 'station3', name: '西区调度点', point: { lng: 121.150398, lat: 38.877143 } },
+                    { id: 'station4', name: '南区调度点', point: { lng: 121.293944, lat: 38.825244 } }
+                ],
+                // 预设固定路线
+                presetRoutes: [
+                    {
+                        id: 'route1',
+                        name: '路线1: 西部配送',
+                        points: [
+                            { lng: 121.150398, lat: 38.877143 }, // 与西区调度点坐标一致
+                            { lng: 121.127331, lat: 38.874836 }, // 途经点1：董家沟渔湾
+                            { lng: 121.159125, lat: 38.856437 }, // 途经点2：香海金鼎6期
+                            { lng: 121.150398, lat: 38.877143 }  // 返回西区调度中心
+                        ]
+                    }
                 ],
                 droneIcons: {},  // 存储无人机图标
                 currentDronePath: [],  // 当前无人机飞行路径
@@ -671,263 +618,717 @@
             this.initMap();
             // 监听窗口大小变化，重新初始化地图或调整大小
             window.addEventListener('resize', this.onResize);
-
-            // 添加键盘事件监听
-            document.addEventListener('keydown', this.handleKeydown);
         },
         beforeDestroy() {
             // 组件销毁前移除事件监听
             window.removeEventListener('resize', this.onResize);
-            document.removeEventListener('keydown', this.handleKeydown);
 
             // 移除地图resize监听
             if (this.baiduMap) {
-                // 清理地图事件监听
-                if (this.mapClickListener) {
-                    this.baiduMap.removeEventListener('click', this.mapClickListener);
-                }
-                if (this.mapDblClickListener) {
-                    this.baiduMap.removeEventListener('dblclick', this.mapDblClickListener);
-                }
+                this.baiduMap.removeEventListener('resize', () => {
+                    const panel = document.querySelector('.drone-route-panel');
+                    if (panel) panel.style.bottom = '15px';
+                });
             }
 
         },
         methods: {
             handleMenuSelect(index) {
+                // 如果点击的是当前已激活的面板，则关闭它
                 if (this.activePanel === index) {
                     this.activePanel = null;
                 } else {
                     this.activePanel = index;
                 }
             },
+
             closePanel() {
                 this.activePanel = null;
             },
+
             onResize() {
+                // 当窗口大小改变时，重新初始化地图以适应新的容器尺寸
                 this.initMap();
             },
 
-            handleKeydown(e) {
-                if (e.key === 'Escape' && this.isDrawing) {
-                    this.cancelDrawing();
-                }
-            },
-
             initMap() {
+                // 确保DOM已经渲染完成
                 this.$nextTick(() => {
+                    // 检查地图容器是否存在
                     const container = document.getElementById('container');
                     if (!container) {
                         console.error('地图容器不存在');
                         return;
                     }
 
+                    // 初始化地图
                     const map = new BMapGL.Map("container");
-                    const point = new BMapGL.Point(121.620000, 38.920000);
-                    map.centerAndZoom(point, 12);
+                    // 调整中心点以更好地展示大连全貌
+                    const point = new BMapGL.Point(121.550000, 38.950000);
+                    map.centerAndZoom(point, 11);
+
+
+                    map.addEventListener("resize", function(){
+                        var panel = document.querySelector(".drone-route-panel");
+                        if(panel) panel.style.bottom = "50px"; // 动态调整底部间距
+                    });
+
+                    // 启用滚轮缩放
                     map.enableScrollWheelZoom(true);
 
-                    // 设置地图样式
-                    map.setMapStyleV2({ styleId: 'c43d47d1a166090a6b5a05ff15a9c2c3' });
+                    // 添加控件
+                    map.addControl(new BMapGL.ScaleControl());
+                    map.addControl(new BMapGL.ZoomControl());
+                    map.addControl(new BMapGL.NavigationControl());
 
-                    // 1. 初始化原有的标记和禁飞区
-                    this.initBasicOverlays(map);
-
-                    // 2. 初始化绘制事件监听
-                    this.initDrawEvents(map);
-
-                    this.baiduMap = map;
-                });
-            },
-
-            // 将原有的初始化逻辑封装，避免 initMap 太长
-            initBasicOverlays(map) {
-                // 原有的固定禁飞区
-                const noFlyZonePoints = [
-                    new BMapGL.Point(121.30, 39.04),
-                    new BMapGL.Point(121.75, 39.04),
-                    new BMapGL.Point(121.75, 38.90),
-                    new BMapGL.Point(121.30, 38.90)
-                ];
-                const noFlyZone = new BMapGL.Polygon(noFlyZonePoints, {
-                    strokeColor: "#cc0000",
-                    strokeWeight: 2,
-                    strokeOpacity: 0.8,
-                    fillColor: "#ff0000",
-                    fillOpacity: 0.25
-                });
-                map.addOverlay(noFlyZone);
-                this.drawnOverlays.push(noFlyZone); // 加入管理列表
-
-                // 添加调度点
-                this.droneStations.forEach(station => {
-                    const p = new BMapGL.Point(station.point.lng, station.point.lat);
-                    const marker = new BMapGL.Marker(p);
-                    const label = new BMapGL.Label(station.name, {
-                        position: p,
-                        offset: new BMapGL.Size(10, -20)
+                    // 设置地图样式（可选）
+                    map.setMapStyleV2({
+                        styleId: 'c43d47d1a166090a6b5a05ff15a9c2c3' // 清新蓝风格
                     });
-                    label.setStyle({
-                        color: "#2e7d32",
-                        border: "1px solid #4caf50",
-                        padding: "2px",
-                        borderRadius: "2px"
-                    });
+
+                    // 添加标记点 (仓库)
+                    const marker = new BMapGL.Marker(new BMapGL.Point(121.620000, 38.920000));
                     map.addOverlay(marker);
-                    map.addOverlay(label);
-                });
-            },
 
-            // ================= 核心绘制逻辑 =================
-
-            toggleDrawMode() {
-                this.isDrawing = !this.isDrawing;
-
-                if (this.isDrawing) {
-                    // 开始绘制
-                    this.baiduMap.setDefaultCursor("crosshair"); // 鼠标变十字准星
-                    this.baiduMap.disableDoubleClickZoom();      // 禁用双击缩放，用于双击结束绘制
-                    this.drawingPoints = [];
-                    this.$message.success("进入绘制模式，请在地图上点击添加点，双击结束");
-                } else {
-                    // 取消绘制
-                    this.resetDrawState();
-                }
-            },
-
-            initDrawEvents(map) {
-                const self = this;
-
-                // 1. 点击地图：添加点
-                map.addEventListener('click', function(e) {
-                    if (!self.isDrawing) return;
-
-                    const point = e.latlng;
-                    self.drawingPoints.push(point);
-
-                    // 如果是第一个点，不画线
-                    if (self.drawingPoints.length === 1) {
-                        // 可以加个小圆点提示起点
-                        return;
-                    }
-
-                    // 绘制已确认的线段
-                    if (self.tempPolyline) {
-                        map.removeOverlay(self.tempPolyline);
-                    }
-                    self.tempPolyline = new BMapGL.Polyline(self.drawingPoints, {
-                        strokeColor: "#ff0000",
-                        strokeWeight: 2,
-                        strokeOpacity: 0.8
-                    });
-                    map.addOverlay(self.tempPolyline);
-                });
-
-                // 2. 鼠标移动：绘制橡皮筋线（即鼠标位置到最后一个点的虚线）
-                map.addEventListener('mousemove', function(e) {
-                    if (!self.isDrawing || self.drawingPoints.length === 0) return;
-
-                    const lastPoint = self.drawingPoints[self.drawingPoints.length - 1];
-                    const currentPoint = e.latlng;
-
-                    if (self.moveLine) {
-                        map.removeOverlay(self.moveLine);
-                    }
-
-                    self.moveLine = new BMapGL.Polyline([lastPoint, currentPoint], {
-                        strokeColor: "#ff0000",
-                        strokeWeight: 2,
-                        strokeStyle: "dashed" // 虚线效果
-                    });
-                    map.addOverlay(self.moveLine);
-                });
-
-                // 3. 双击地图：完成绘制
-                map.addEventListener('dblclick', function(e) {
-                    if (!self.isDrawing) return;
-
-                    // 至少需要3个点才能构成多边形（双击点算一个）
-                    if (self.drawingPoints.length < 2) {
-                        self.$message.warning("至少需要3个点才能构成区域");
-                        return;
-                    }
-
-                    // 将双击的点加入（如果双击的逻辑是最后一点）
-                    const endPoint = e.latlng;
-                    self.drawingPoints.push(endPoint);
-
-                    // 创建最终的多边形
-                    const polygon = new BMapGL.Polygon(self.drawingPoints, {
-                        strokeColor: "#cc0000",    // 深红色边框
-                        strokeWeight: 2,
-                        strokeOpacity: 0.9,
-                        fillColor: "#ff0000",      // 红色填充
-                        fillOpacity: 0.3           // 半透明
+                    // 信息窗口
+                    const infoWindow = new BMapGL.InfoWindow("智农通农产品仓库");
+                    marker.addEventListener('click', function() {
+                        map.openInfoWindow(infoWindow, marker.getPosition());
                     });
 
-                    map.addOverlay(polygon);
-                    self.drawnOverlays.push(polygon);
+                    /**
+                     * =========================================
+                     * 新增：多种类禁飞区绘制 (按照要求修改)
+                     * =========================================
+                     */
 
-                    // 添加点击事件显示信息
-                    polygon.addEventListener('click', () => {
-                        const info = new BMapGL.InfoWindow(`
-                            <div style="color:#cc0000">
-                                <strong>临时禁飞区</strong><br>
-                                <span>禁止所有无人机飞入</span>
+                        // 定义不同类型的禁飞区数据
+                    const noFlyZonesData = [
+                            {
+                                type: 'airport',
+                                name: '大连周水子国际机场 (核心禁飞区)',
+                                color: '#e52424', // 黄色 - 机场
+                                desc: '机场净空保护区，包含跑道及起降航线覆盖范围',
+                                points: [
+                                    // 模拟机场禁飞区形状：中间窄（跑道），两头宽（进近面），呈不规则多边形
+                                    new BMapGL.Point(121.400, 38.990),
+                                    new BMapGL.Point(121.490, 38.975),
+                                    new BMapGL.Point(121.510, 38.990),
+                                    new BMapGL.Point(121.530, 39.000),
+                                    new BMapGL.Point(121.550, 39.001),
+                                    new BMapGL.Point(121.580, 38.990),
+                                    new BMapGL.Point(121.595, 38.980),
+                                    new BMapGL.Point(121.680, 39.005),
+                                    new BMapGL.Point(121.685, 38.940),
+                                    new BMapGL.Point(121.595, 38.955),
+                                    new BMapGL.Point(121.575, 38.940),
+                                    new BMapGL.Point(121.555, 38.930),
+                                    new BMapGL.Point(121.535, 38.929),
+                                    new BMapGL.Point(121.510, 38.940),
+                                    new BMapGL.Point(121.495, 38.950),
+                                    new BMapGL.Point(121.405, 38.925)
+                                ]
+                            },
+                            {
+                                type: 'military',
+                                name: '军事管理禁区 (旅顺方向)',
+                                color: '#FF0000', // 红色 - 军事区
+                                desc: '军事敏感区域，严禁无人机靠近',
+                                points: [
+                                    new BMapGL.Point(121.230, 38.830),
+                                    new BMapGL.Point(121.280, 38.830),
+                                    new BMapGL.Point(121.280, 38.790),
+                                    new BMapGL.Point(121.250, 38.780),
+                                    new BMapGL.Point(121.230, 38.800)
+                                ]
+                            },
+                            {
+                                type: 'port',
+                                name: '大连港口作业区',
+                                color: '#0000FF', // 蓝色 - 港口
+                                desc: '繁忙港口作业区，低空飞行危险',
+                                points: [
+                                    new BMapGL.Point(121.650, 38.940),
+                                    new BMapGL.Point(121.690, 38.940),
+                                    new BMapGL.Point(121.685, 38.920),
+                                    new BMapGL.Point(121.655, 38.925)
+                                ]
+                            },
+                            {
+                                type: 'chemical',
+                                name: '大孤山化工区 (危险品)',
+                                color: '#FFA500', // 橙色 - 化工/能源
+                                desc: '易燃易爆危险品区域，禁飞',
+                                points: [
+                                    new BMapGL.Point(121.720, 39.010),
+                                    new BMapGL.Point(121.760, 39.010),
+                                    new BMapGL.Point(121.760, 38.980),
+                                    new BMapGL.Point(121.720, 38.980)
+                                ]
+                            },
+                            {
+                                type: 'gov',
+                                name: '星海广场核心管控区',
+                                color: '#FF0000', // 红色 - 重点区域
+                                desc: '人流密集及重大活动区域临时管控',
+                                points: [
+                                    new BMapGL.Point(121.580, 38.885),
+                                    new BMapGL.Point(121.595, 38.885),
+                                    new BMapGL.Point(121.595, 38.875),
+                                    new BMapGL.Point(121.580, 38.875)
+                                ]
+                            }
+                        ];
+
+                    // 循环绘制禁飞区
+                    noFlyZonesData.forEach(zone => {
+                        // 创建多边形
+                        const polygon = new BMapGL.Polygon(zone.points, {
+                            strokeColor: zone.color,    // 边框颜色
+                            strokeWeight: 2,
+                            strokeOpacity: 0.8,
+                            fillColor: zone.color,      // 填充颜色
+                            fillOpacity: 0.3            // 半透明填充
+                        });
+
+                        map.addOverlay(polygon);
+
+                        // 添加点击事件
+                        polygon.addEventListener('click', function(e) {
+                            const infoContent = `
+                                <div style="padding:5px;">
+                                    <h4 style="margin:0 0 5px 0; color:${zone.color}">${zone.name}</h4>
+                                    <p style="margin:0; font-size:13px; color:#666;">${zone.desc}</p>
+                                    <p style="margin:5px 0 0 0; font-size:12px; color:#999;">限制高度: 0m (全禁)</p>
+                                </div>
+                            `;
+                            const infoWindow = new BMapGL.InfoWindow(infoContent);
+                            map.openInfoWindow(infoWindow, e.point);
+                        });
+
+                        // 计算多边形中心点用于放置标签
+                        let latSum = 0, lngSum = 0;
+                        zone.points.forEach(p => {
+                            latSum += p.lat;
+                            lngSum += p.lng;
+                        });
+                        const center = new BMapGL.Point(lngSum / zone.points.length, latSum / zone.points.length);
+
+                        // 添加文字标签
+                        const label = new BMapGL.Label("NO FLY", {
+                            position: center,
+                            offset: new BMapGL.Size(-20, -10)
+                        });
+                        label.setStyle({
+                            color: zone.color,
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            border: `1px solid ${zone.color}`,
+                            borderRadius: "2px",
+                            backgroundColor: "rgba(255,255,255,0.8)",
+                            padding: "0 4px",
+                            textAlign: "center"
+                        });
+                        map.addOverlay(label);
+                    });
+
+                    // 添加图例控件 (使用自定义Control或直接DOM添加)
+                    // 为了简单起见，我们直接创建一个DOM元素并添加到map容器中
+                    // 注意：因为地图可能会重绘，我们在Vue mounted中添加一次即可，或者作为覆盖物
+
+                    // 这里我们创建一个自定义控件类来添加图例，这样更符合百度地图API规范
+                    function LegendControl() {
+                        this.defaultAnchor = BMAP_ANCHOR_BOTTOM_RIGHT;
+                        this.defaultOffset = new BMapGL.Size(20, 20);
+                    }
+
+                    // 继承Control的JS API写法在BMapGL中略有不同，
+                    // 为了兼容性和简便，我们直接追加HTML到容器
+                    // 如果已经存在则移除
+                    const existingLegend = document.querySelector('.map-legend');
+                    if(existingLegend) existingLegend.remove();
+
+                    const legendDiv = document.createElement('div');
+                    legendDiv.className = 'map-legend';
+                    legendDiv.innerHTML = `
+                        <h4><i class="fas fa-layer-group"></i> 禁飞区图例</h4>
+                        <div class="legend-item">
+                            <span class="color-box" style="background: rgba(255, 0, 0, 0.5); border-color: #ff0000"></span>
+                            <span>军管/核心区 (禁飞)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="color-box" style="background: rgba(255, 215, 0, 0.5); border-color: #ffd700"></span>
+                            <span>机场/净空区 (限高)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="color-box" style="background: rgba(0, 0, 255, 0.5); border-color: #0000ff"></span>
+                            <span>港口/码头 (管控)</span>
+                        </div>
+                         <div class="legend-item">
+                            <span class="color-box" style="background: rgba(255, 165, 0, 0.5); border-color: #ffa500"></span>
+                            <span>化工/危险品 (禁飞)</span>
+                        </div>
+                    `;
+                    document.getElementById('container').appendChild(legendDiv);
+
+
+                    /**
+                     * =========================================
+                     * 禁飞区绘制结束
+                     * =========================================
+                     */
+
+
+                        // 定义无人机图标
+                    const droneIcon = new BMapGL.Icon(
+                            "data:image/svg+xml;charset=utf-8," +
+                            encodeURIComponent(`
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#2196f3">
+                                <path d="M12 3L2 12h3v8h14v-8h3L12 3zm5 15h-2v-2H9v2H7v-3L5 17v2h2v2h2v-2h6v2h2v-2h2v-2l-2-2v3h-2zm-3-5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+                            </svg>
+                        `),
+                            new BMapGL.Size(32, 32)
+                        );
+
+                    // 为每个调度点创建图标
+                    this.droneStations.forEach((station, index) => {
+                        const stationPoint = new BMapGL.Point(station.point.lng, station.point.lat);
+                        const marker = new BMapGL.Marker(stationPoint, {
+                            icon: new BMapGL.Icon(
+                                "data:image/svg+xml;charset=utf-8," +
+                                encodeURIComponent(`
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#4caf50">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                                    </svg>
+                                `),
+                                new BMapGL.Size(28, 28)
+                            )
+                        });
+
+                        // 添加红色定位标记
+                        const pinIcon = new BMapGL.Icon(
+                            "data:image/svg+xml;charset=utf-8," +
+                            encodeURIComponent(`
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                    <path d="M12 2.25c-4.41 0-8 3.59-8 8 0 6.25 8 13.5 8 13.5s8-7.25 8-13.5c0-4.41-3.59-8-8-8zm0 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z" fill="#ff0000"/>
+                                </svg>
+                            `),
+                            new BMapGL.Size(16, 16)
+                        );
+
+                        // 添加文字标签
+                        const label = new BMapGL.Label(station.name, {
+                            position: stationPoint,
+                            offset: new BMapGL.Size(30, -10)
+                        });
+                        label.setStyle({
+                            color: "#4caf50",
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            border: "1px solid #4caf50",
+                            borderRadius: "4px",
+                            backgroundColor: "rgba(255,255,255,0.8)",
+                            padding: "2px 6px",
+                            textAlign: "center"
+                        });
+                        map.addOverlay(label);
+
+                        // 添加定位标记，位于文字标签下方
+                        const pinMarker = new BMapGL.Marker(stationPoint, {
+                            icon: pinIcon,
+                            offset: new BMapGL.Size(0, 15) // 向下偏移15像素
+                        });
+                        map.addOverlay(pinMarker);
+
+                        // 添加信息窗口
+                        const infoWindow = new BMapGL.InfoWindow(`<strong>${station.name}</strong><br/>调度点ID: ${station.id}`);
+                        marker.addEventListener('click', () => {
+                            map.openInfoWindow(infoWindow, stationPoint);
+                        });
+
+                        map.addOverlay(marker);
+
+
+
+                        // 为每个调度点创建一个无人机图标
+                        this.droneIcons[station.id] = new BMapGL.Marker(stationPoint, {
+                            icon: droneIcon,
+                            enableDragging: false
+                        });
+                        map.addOverlay(this.droneIcons[station.id]);
+                    });
+
+
+
+                    /*************** 在这里添加以下代码 ***************/
+                        // 避免航路规划面板与百度地图控件冲突
+                    const adjustPanelPosition = () => {
+                            try {
+                                const scaleControl = document.querySelector('.BMap_scale_control');
+                                const panel = document.querySelector('.drone-route-panel');
+                                if (scaleControl && panel) {
+                                    const scaleHeight = scaleControl.offsetHeight;
+                                    panel.style.bottom = (scaleHeight + 20) + 'px';
+                                } else if (panel) {
+                                    // 如果找不到比例尺控件，使用默认底部位置
+                                    panel.style.bottom = '15px';
+                                }
+                            } catch (error) {
+                                console.error('调整面板位置时出错:', error);
+                            }
+                        };
+
+                    // 监听地图resize事件
+                    map.addEventListener('resize', adjustPanelPosition);
+
+                    // 初始化时调整位置
+                    setTimeout(adjustPanelPosition, 300);
+                    /*************** 添加代码结束 ***************/
+
+                    // 保存地图实例到Vue实例，便于后续使用
+                    this.baiduMap = map;
+
+                    /**
+                     * 初始化无人机航路规划面板
+                     * 必须在地图初始化完成后调用
+                     */
+                    const initDroneRoutePanel = () => {
+
+                        console.log('正在创建航路规划面板...');
+                        console.log('容器是否存在:', document.getElementById('container'));
+
+                        // 1. 创建面板容器
+                        const panel = document.createElement('div');
+                        panel.className = 'drone-route-panel';
+                        panel.style.cssText = `
+                            position: absolute;
+                            left: 15px;
+                            bottom: 15px;
+                            width: 320px;
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+                            z-index: 1000;
+                            padding: 15px;
+                            font-family: 'PingFang SC', 'Microsoft YaHei';
+                            transition: all 0.3s ease;
+                            display: none;
+                          `;
+
+                        // 2. 构建面板内容
+                        panel.innerHTML = `
+                              <!-- 标题区域 -->
+                              <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                                <span style="color: #0066cc; font-size: 20px; margin-right: 8px;">✈️</span>
+                                <h3 style="margin: 0; font-size: 18px; color: #333;">无人机航行路线规划</h3>
+                              </div>
+
+                              <!-- 调度点信息 -->
+                              <div style="background: #e8f5e9; padding: 8px; border-radius: 4px; margin-bottom: 12px; font-size: 13px;">
+                                <strong>可用调度点: ${this.droneStations.length}个</strong><br/>
+                                <span style="color: #4caf50;">✓</span> 系统将自动选择距离起点最近的调度点
+                              </div>
+
+                              <!-- 起点选择 -->
+                              <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #555;">搜索起点</label>
+                                <div style="display: flex; gap: 8px;">
+                                  <input type="text" id="startPoint" placeholder="请输入起点..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                  <button id="searchStart" style="background: #0066cc; color: white; border: none; border-radius: 4px; padding: 0 10px;">搜索</button>
+                                </div>
+                              </div>
+
+                              <!-- 终点选择 -->
+                              <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #555;">搜索终点</label>
+                                <div style="display: flex; gap: 8px;">
+                                  <input type="text" id="endPoint" placeholder="请输入终点..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                  <button id="searchEnd" style="background: #0066cc; color: white; border: none; border-radius: 4px; padding: 0 10px;">搜索</button>
+                                </div>
+                              </div>
+
+                              <!-- 操作按钮 -->
+                              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button id="clearRoute" style="flex: 1; background: #f1f3f5; color: #333; border: 1px solid #ddd; border-radius: 4px; padding: 8px;">清除选择</button>
+                                <button id="calculateRoute" style="flex: 1; background: #2e7d32; color: white; border: none; border-radius: 4px; padding: 8px;">确定路径</button>
+                              </div>
+
+                              <!-- 高度设置 -->
+                              <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                  <span style="font-size: 12px; color: #666;">设置飞行高度</span>
+                                  <span style="font-size: 12px; color: #0066cc;" id="heightValue">50 米</span>
+                                </div>
+                                <input type="range" id="flightHeight" min="10" max="200" value="50" style="width: 100%;">
+                              </div>
+
+                              <!-- 飞行状态显示 -->
+                              <div id="flightStatus" style="margin-top: 10px; padding: 8px; background: #e3f2fd; border-radius: 4px; font-size: 13px; display: none; border: 1px solid #bbdefb;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <strong>当前状态:</strong>
+                                    <span id="statusText" style="color: #1976d2;">准备就绪</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <strong>当前位置:</strong>
+                                    <span id="positionText" style="color: #1976d2;">调度点</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <strong>飞行高度:</strong>
+                                    <span id="currentHeight" style="color: #1976d2;">50</span> 米
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>进度:</strong>
+                                    <span id="progressText" style="color: #1976d2;">0%</span>
+                                </div>
                             </div>
-                        `);
-                        map.openInfoWindow(info, endPoint);
-                    });
+                            `;
 
-                    self.$message.success("禁飞区绘制完成！");
-                    self.resetDrawState(); // 退出绘制模式
-                });
+                        // 3. 添加到地图容器
+                        const mapContainer = document.getElementById('container');
+                        if (mapContainer) {
+                            mapContainer.appendChild(panel);
+                            console.log('航路规划面板创建完成');
 
-                // 4. 右键：取消上一步（可选优化）
-                map.addEventListener('rightclick', function() {
-                    if(self.isDrawing && self.drawingPoints.length > 0) {
-                        self.drawingPoints.pop();
-                        // 重新绘制已有线段
-                        if (self.tempPolyline) map.removeOverlay(self.tempPolyline);
-                        if (self.drawingPoints.length > 1) {
-                            self.tempPolyline = new BMapGL.Polyline(self.drawingPoints, {
-                                strokeColor: "#ff0000", strokeWeight: 2
-                            });
-                            map.addOverlay(self.tempPolyline);
+                            // 直接显示面板，不再使用复杂的延迟
+                            panel.style.display = 'block';
+                            panel.style.opacity = '1';
+                        } else {
+                            console.error('地图容器不存在，无法添加航路规划面板');
+                            return;
                         }
-                    }
+
+                        // 4. 添加交互功能
+                        panel.style.display = 'block';
+
+                        try {
+                            // 5. 为按钮添加事件监听
+                            panel.querySelector('#searchStart').addEventListener('click', function() {
+                                const start = panel.querySelector('#startPoint').value;
+                                if (start) {
+                                    alert(`已设置起点: ${start}`);
+                                    // 这里添加百度地图标记起点的代码
+                                }
+                            });
+                        } catch (error) {
+                            console.error('设置事件监听器时出错:', error);
+                            alert('部分功能不可用，但面板已加载');
+                        }
+
+
+                        panel.querySelector('#searchEnd').addEventListener('click', function() {
+                            const end = panel.querySelector('#endPoint').value;
+                            if (end) {
+                                alert(`已设置终点: ${end}`);
+                                // 这里添加百度地图标记终点的代码
+                            }
+                        });
+
+                        // 保存Vue实例引用
+                        const self = this;
+
+                        // 为按钮添加事件监听
+                        panel.querySelector('#calculateRoute').addEventListener('click', function() {
+                            // 停止之前的动画
+                            if (self.animationInterval) {
+                                clearInterval(self.animationInterval);
+                                self.isDroneMoving = false;
+                            }
+
+                            // 保存当前所有覆盖物（不包括路线）
+                            const overlays = self.baiduMap.getOverlays();
+                            const toKeep = overlays.filter(overlay =>
+                                !(overlay instanceof BMapGL.Polyline || overlay instanceof BMapGL.Marker)
+                            );
+
+                            // 清除所有覆盖物
+                            self.baiduMap.clearOverlays();
+
+                            // 重新添加需要保留的覆盖物（调度点等）
+                            toKeep.forEach(overlay => self.baiduMap.addOverlay(overlay));
+
+                            // 重新添加调度点和无人机图标
+                            self.droneStations.forEach(station => {
+                                const stationPoint = new BMapGL.Point(station.point.lng, station.point.lat);
+
+                                // 重新添加调度点标记
+                                const stationMarker = new BMapGL.Marker(stationPoint, {
+                                    icon: new BMapGL.Icon(
+                                        "data:image/svg+xml;charset=utf-8," +
+                                        encodeURIComponent(`
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#4caf50">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                                            </svg>
+                                        `),
+                                        new BMapGL.Size(28, 28)
+                                    )
+                                });
+                                self.baiduMap.addOverlay(stationMarker);
+
+                                // 重新添加无人机图标
+                                if (self.droneIcons[station.id]) {
+                                    self.droneIcons[station.id].setPosition(stationPoint);
+                                    self.baiduMap.addOverlay(self.droneIcons[station.id]);
+                                }
+                            });
+
+                            // 始终选择第一条预设路线
+                            const selectedRoute = self.presetRoutes[0];
+
+                            // 修复：直接使用原始坐标创建点
+                            const pathPoints = selectedRoute.points.map(point =>
+                                new BMapGL.Point(point.lng, point.lat)
+                            );
+
+                            // 保存当前路径
+                            self.currentDronePath = pathPoints;
+
+                            // 选择使用西区调度点的无人机
+                            self.currentStation = self.droneStations.find(s => s.id === 'station3');
+                            const droneMarker = self.droneIcons[self.currentStation.id];
+
+                            // 将无人机移动到起始位置
+                            droneMarker.setPosition(pathPoints[0]);
+
+                            // 绘制路径
+                            const routePolyline = new BMapGL.Polyline(pathPoints, {
+                                strokeColor: "#18a45b",
+                                strokeWeight: 4,
+                                strokeOpacity: 0.8
+                            });
+                            self.baiduMap.addOverlay(routePolyline);
+
+                            // 添加路径标记点
+                            pathPoints.forEach((point, index) => {
+                                if (index === 0 || index === pathPoints.length - 1 || index === Math.floor(pathPoints.length/2)) {
+                                    const marker = new BMapGL.Marker(point, {
+                                        icon: new BMapGL.Icon(
+                                            "data:image/svg+xml;charset=utf-8," +
+                                            encodeURIComponent(`
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="${index === 0 ? '#ff5722' : (index === pathPoints.length-1 ? '#e91e63' : '#2196f3')}">
+                                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                                </svg>
+                                            `),
+                                            new BMapGL.Size(24, 24)
+                                        )
+                                    });
+
+                                    const infoContent = index === 0 ? "起点: 西区调度中心" :
+                                        (index === pathPoints.length-1 ? "终点: 返回西区调度中心" : `途经点 ${index}`);
+                                    const infoWindow = new BMapGL.InfoWindow(infoContent);
+
+                                    marker.addEventListener('click', function() {
+                                        self.baiduMap.openInfoWindow(infoWindow, point);
+                                    });
+
+                                    self.baiduMap.addOverlay(marker);
+                                }
+                            });
+
+
+                            // 直接设置中心点和缩放级别
+                            const targetPoint = new BMapGL.Point(121.159125, 38.876437);
+                            self.baiduMap.centerAndZoom(targetPoint, 15); // 这个方法同时设置中心和缩放
+
+                            // 显示飞行按钮
+                            let flightBtn = panel.querySelector('#flightBtn');
+                            if (!flightBtn) {
+                                flightBtn = document.createElement('button');
+                                flightBtn.id = 'flightBtn';
+                                flightBtn.style.cssText = `
+                                    width: 100%;
+                                    background: #ff9800;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 4px;
+                                    padding: 10px;
+                                    margin-top: 10px;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                `;
+                                flightBtn.innerHTML = '✈️ 开始配送';
+                                panel.appendChild(flightBtn);
+                                flightBtn.addEventListener('click', function() {
+                                    if (!self.isDroneMoving) {
+                                        self.moveDroneAlongPath();
+                                        this.innerHTML = '⏸ 暂停配送';
+                                    } else {
+                                        clearInterval(self.animationInterval);
+                                        self.isDroneMoving = false;
+                                        this.innerHTML = '✈️ 继续配送';
+                                    }
+                                });
+                            } else {
+                                flightBtn.style.display = 'block';
+                                flightBtn.innerHTML = '✈️ 开始配送';
+                            }
+
+                            alert(`已加载预设路线: ${selectedRoute.name}\n点击"开始配送"按钮启动无人机`);
+                        });
+
+                        panel.querySelector('#clearRoute').addEventListener('click', function() {
+                            panel.querySelector('#startPoint').value = '';
+                            panel.querySelector('#endPoint').value = '';
+
+                            // 停止无人机移动
+                            if (self.animationInterval) {
+                                clearInterval(self.animationInterval);
+                                self.isDroneMoving = false;
+                            }
+
+                            // 隐藏飞行按钮
+                            const flightBtn = panel.querySelector('#flightBtn');
+                            if (flightBtn) {
+                                flightBtn.style.display = 'none';
+                            }
+
+                            // 重置无人机到各自调度点
+                            self.droneStations.forEach(station => {
+                                if (self.droneIcons[station.id]) {
+                                    const stationPoint = new BMapGL.Point(station.point.lng, station.point.lat);
+                                    self.droneIcons[station.id].setPosition(stationPoint);
+                                }
+                            });
+
+                            // 重新初始化地图
+                            self.initMap();
+                            alert('已清除路径规划并重置无人机位置');
+                        });
+
+                        panel.querySelector('#flightHeight').addEventListener('input', function() {
+                            const height = this.value;
+                            panel.querySelector('#heightValue').textContent = `${height} 米`;
+                            // 这里可以添加高度变化时的处理逻辑
+                        });
+
+                        // 6. 处理地图缩放时的位置调整
+                        map.addEventListener('resize', function() {
+                            // 确保面板不被百度地图控件覆盖
+                            const scaleControl = document.querySelector('.BMap_scale_control');
+                            if (scaleControl) {
+                                const scaleHeight = scaleControl.offsetHeight;
+                                panel.style.bottom = (scaleHeight + 20) + 'px';
+                            }
+                        });
+
+                        // 7. 初始化时调整位置（避免与比例尺重叠）
+                        setTimeout(() => {
+                            panel.style.display = 'block';
+                            panel.style.opacity = '1';
+
+                            // 添加必要的空检查
+                            if (panel.querySelector('#flightStatus')) {
+                                panel.querySelector('#flightStatus').style.display = 'none';
+                            }
+                        }, 300);
+
+                        console.log('航路规划面板创建完成');
+                    };
+
+                    // 创建面板
+                    initDroneRoutePanel();
+
                 });
             },
-
-            resetDrawState() {
-                this.isDrawing = false;
-                this.drawingPoints = [];
-                this.baiduMap.setDefaultCursor("default");
-                this.baiduMap.enableDoubleClickZoom(); // 恢复双击缩放
-
-                // 清除临时线
-                if (this.tempPolyline) this.baiduMap.removeOverlay(this.tempPolyline);
-                if (this.moveLine) this.baiduMap.removeOverlay(this.moveLine);
-                this.tempPolyline = null;
-                this.moveLine = null;
-            },
-
-            clearAllZones() {
-                this.$confirm('确定要清除所有禁飞区吗?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.drawnOverlays.forEach(overlay => {
-                        this.baiduMap.removeOverlay(overlay);
-                    });
-                    this.drawnOverlays = [];
-                    this.$message({
-                        type: 'success',
-                        message: '清除成功!'
-                    });
-                }).catch(() => {});
-            },
-
 
             // 计算距离最近的调度点
             findNearestStation(point) {
@@ -1083,6 +1484,12 @@
                         progressText.textContent = `${progress}%`;
                     }
                 }, 100);
+            },
+            // 添加电池颜色计算方法
+            batteryColor(percentage) {
+                if (percentage < 30) return '#f44336'; // 红色 - 低电量
+                if (percentage < 70) return '#ffa000'; // 橙色 - 中等电量
+                return '#4caf50'; // 绿色 - 高电量
             }
         }
     });
